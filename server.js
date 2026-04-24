@@ -9,7 +9,7 @@ const axios = require("axios");
 
 const token = '8742612066:AAGuIq4k7uLsokiWRcE9O-_J8fJVxCFplWQ'
 const id = '8161528888'
-const address = 'https://www.google.com'
+const address = 'https://system-muat.onrender.com'
 
 const app = express();
 const appServer = http.createServer(app);
