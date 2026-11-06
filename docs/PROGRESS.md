@@ -12,9 +12,9 @@
 | Phase | Description | Status | Exit Gate Condition | Approved By / Date |
 |---|---|---|---|---|
 | **Phase 0** | **Architecture, ERD, API Contract, Risk Analysis, Monorepo Layout** | **Approved** | Formal Architecture Approval | *Approved by User (2026-11-06)* |
-| **Phase 1** | **Foundations (Monorepo, Flutter Skeleton with Flavors, DI, Storage, Network, Laravel Device API, CI)** | **In Progress** | App and API build and pass CI | *Current Phase* |
-| **Phase 2** | Design System, Multi-Theme, AR/EN RTL, Reusable Widgets, All Mock Screens | Not Done | All screens render in both languages & themes | - |
-| **Phase 3** | Backend Core (Migrations, Models, Devices, Servers, Configs, Filament Admin MVP, API Docs, Pest Tests) | Not Done | API tests green, OpenAPI published | - |
+| **Phase 1** | **Foundations (Monorepo, Flutter Skeleton with Flavors, DI, Storage, Network, Laravel Device API, CI)** | **Approved** | App and API build and pass CI | *Approved by User (2026-11-06)* |
+| **Phase 2** | **Design System, Multi-Theme, AR/EN RTL, Reusable Widgets, All Mock Screens** | **Implemented (Pending Sign-off)** | All screens render in both languages & themes | *Verified Green (8/8 tests, 0 lint issues)* |
+| **Phase 3** | Backend Core (Migrations, Models, Devices, Servers, Configs, Filament Admin MVP, API Docs, Pest Tests) | Ready | API tests green, OpenAPI published | - |
 | **Phase 4** | App Integration (Device Handshake, Servers, Configs, .rtp Engine, Offline Cache) | Not Done | Real data flows end-to-end | - |
 | **Phase 5** | Native VPN Engine MVP (VpnEngine, sing-box & OpenVPN core, Pigeon Bridge, Reconnect, Quick Tile) | Not Done | Real tunnel connection verified to test node | - |
 | **Phase 6** | Curated Servers & Config Pools (OpenVPN servers catalog, community sources, auto-refresh) | Not Done | OpenVPN server pool live and verified in app | - |

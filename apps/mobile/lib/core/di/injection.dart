@@ -1,10 +1,12 @@
 import 'package:get_it/get_it.dart';
 import '../config/app_environment.dart';
+import '../localization/locale_cubit.dart';
 import '../network/dio_client.dart';
 import '../services/device_identity_service.dart';
 import '../storage/database/app_database.dart';
 import '../storage/hive_storage_service.dart';
 import '../storage/secure_storage_service.dart';
+import '../theme/theme_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -34,4 +36,8 @@ Future<void> configureDependencies() async {
     deviceIdentityService: sl<DeviceIdentityService>(),
   );
   sl.registerSingleton<DioClient>(dioClient);
+
+  // State: Theme & Locale Cubits
+  sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit(sl<IHiveStorageService>()));
+  sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<IHiveStorageService>()));
 }
