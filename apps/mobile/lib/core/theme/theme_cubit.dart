@@ -38,8 +38,8 @@ class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit(this._hiveStorage)
       : super(const ThemeState(
           mode: ThemeMode.system,
-          preset: ThemePreset.oceanBlue,
-          customSeedColor: Color(0xFF0D6EFD),
+          preset: ThemePreset.green,
+          customSeedColor: Color(0xFF087f5b),
         )) {
     _loadPersistedTheme();
   }
@@ -53,12 +53,12 @@ class ThemeCubit extends Cubit<ThemeState> {
     final presetIndex = _hiveStorage.get<int>(
       HiveStorageService.boxSettings,
       _keyThemePreset,
-      defaultValue: ThemePreset.oceanBlue.index,
+      defaultValue: ThemePreset.green.index,
     );
 
     emit(state.copyWith(
       mode: ThemeMode.values[modeIndex ?? ThemeMode.system.index],
-      preset: ThemePreset.values[presetIndex ?? ThemePreset.oceanBlue.index],
+      preset: ThemePreset.values[presetIndex ?? ThemePreset.green.index],
     ));
   }
 

@@ -1,0 +1,251 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ramez Tunnel Plus Control Plane API",
+    "version": "1.0.0",
+    "description": "Zero-friction device-first VPN control plane providing curated OpenVPN servers, custom configuration sharing, subscription entitlement verification, and session telemetry."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000/api/v1",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://api.rameztunnel.com/api/v1",
+      "description": "Production Control Plane"
+    }
+  ],
+  "paths": {
+    "/devices/handshake": {
+      "post": {
+        "summary": "Device Identity Handshake",
+        "description": "Registers or touches the device identity using hardware UUID. Zero authentication credentials required.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["device_uuid"],
+                "properties": {
+                  "device_uuid": { "type": "string", "example": "9a38d78f-6238-4ceb-934d-bc1129b87640" },
+                  "device_name": { "type": "string", "example": "Samsung Galaxy S24" },
+                  "model": { "type": "string", "example": "SM-S928B" },
+                  "os_version": { "type": "string", "example": "Android 14" },
+                  "app_version": { "type": "string", "example": "1.0.0" },
+                  "platform": { "type": "string", "enum": ["android", "ios", "windows"], "example": "android" },
+                  "push_token": { "type": "string", "example": "fcm_token_sample" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Handshake successful with device entitlement details" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/devices/me": {
+      "get": {
+        "summary": "Current Device Profile",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Device profile and accumulated usage" },
+          "404": { "description": "Device not found" }
+        }
+      }
+    },
+    "/devices/push-token": {
+      "post": {
+        "summary": "Update FCM Push Token",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["push_token"],
+                "properties": { "push_token": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Push token updated" } }
+      }
+    },
+    "/servers": {
+      "get": {
+        "summary": "List Curated OpenVPN & Proxy Servers",
+        "parameters": [
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "2-letter ISO country code" },
+          { "name": "protocol", "in": "query", "schema": { "type": "string" }, "description": "ovpn, vless, etc." },
+          { "name": "is_premium", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "List of active servers" } }
+      }
+    },
+    "/servers/countries": {
+      "get": {
+        "summary": "Available Server Countries",
+        "responses": { "200": { "description": "Distinct countries with active server counts" } }
+      }
+    },
+    "/servers/{id}": {
+      "get": {
+        "summary": "Server Details",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Server details" }, "404": { "description": "Server not found" } }
+      }
+    },
+    "/servers/{id}/ovpn": {
+      "get": {
+        "summary": "Download Raw OpenVPN Config",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Raw text OpenVPN configuration", "content": { "text/plain": {} } } }
+      }
+    },
+    "/configs": {
+      "get": {
+        "summary": "List Community & Curated Configurations",
+        "parameters": [
+          { "name": "protocol", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Paginated list of configs" } }
+      },
+      "post": {
+        "summary": "Publish Custom Configuration",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": false, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "protocol", "config_data"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "protocol": { "type": "string", "enum": ["ovpn", "vless", "vmess", "trojan", "ssh", "rtp"] },
+                  "config_data": { "type": "string" },
+                  "is_public": { "type": "boolean" },
+                  "export_locked": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Config published with unique share code" } }
+      }
+    },
+    "/configs/share/{code}": {
+      "get": {
+        "summary": "Import Configuration by Share Code",
+        "parameters": [{ "name": "code", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Imported configuration data" }, "404": { "description": "Invalid code" } }
+      }
+    },
+    "/configs/{id}/download": {
+      "get": {
+        "summary": "Download Raw Config File",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "File download" } }
+      }
+    },
+    "/plans": {
+      "get": {
+        "summary": "List Subscription Plans",
+        "responses": { "200": { "description": "Active subscription tiers (Free, Pro, VIP)" } }
+      }
+    },
+    "/subscriptions/verify": {
+      "post": {
+        "summary": "Verify Google Play Purchase & Activate Entitlement",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["plan_id", "purchase_token"],
+                "properties": {
+                  "plan_id": { "type": "integer" },
+                  "purchase_token": { "type": "string" },
+                  "order_id": { "type": "string" },
+                  "store": { "type": "string", "enum": ["google_play", "promo", "trial", "sandbox"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Entitlement granted and verified" } }
+      }
+    },
+    "/subscriptions/status": {
+      "get": {
+        "summary": "Device Subscription Status",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Current device entitlement tier and expiration" } }
+      }
+    },
+    "/telemetry/session": {
+      "post": {
+        "summary": "Report Connection Session Telemetry",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["session_uuid", "bytes_in", "bytes_out", "duration_seconds"],
+                "properties": {
+                  "session_uuid": { "type": "string" },
+                  "server_id": { "type": "integer" },
+                  "configuration_id": { "type": "integer" },
+                  "protocol": { "type": "string" },
+                  "bytes_in": { "type": "integer" },
+                  "bytes_out": { "type": "integer" },
+                  "duration_seconds": { "type": "integer" },
+                  "disconnect_reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Session logged and cumulative counters incremented" } }
+      }
+    },
+    "/telemetry/summary": {
+      "get": {
+        "summary": "Device Bandwidth & Session Aggregate Summary",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Total transferred bytes and session count" } }
+      }
+    },
+    "/app/config": {
+      "get": {
+        "summary": "Remote Application Configuration & Feature Flags",
+        "responses": { "200": { "description": "Dynamic app settings, min app version, and announcement banner" } }
+      }
+    }
+  }
+}

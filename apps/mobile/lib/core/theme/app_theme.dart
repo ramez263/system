@@ -3,11 +3,21 @@ import 'app_colors.dart';
 import 'theme_extension.dart';
 
 class AppTheme {
-  static ThemeData lightTheme(Color seedColor) {
-    final colorScheme = ColorScheme.fromSeed(
+  // App colors often look pale because Material 3 generates tonal palettes.
+  // Override primary with the raw preset seed color so buttons and accents
+  // render with the exact strong brand color.
+  static ColorScheme _strongColorScheme(Color seedColor, Brightness brightness) {
+    return ColorScheme.fromSeed(
       seedColor: seedColor,
-      brightness: Brightness.light,
+      brightness: brightness,
+    ).copyWith(
+      primary: seedColor,
+      onPrimary: Colors.white,
     );
+  }
+
+  static ThemeData lightTheme(Color seedColor) {
+    final colorScheme = _strongColorScheme(seedColor, Brightness.light);
 
     return ThemeData(
       useMaterial3: true,
@@ -46,10 +56,7 @@ class AppTheme {
   }
 
   static ThemeData darkTheme(Color seedColor) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: Brightness.dark,
-    );
+    final colorScheme = _strongColorScheme(seedColor, Brightness.dark);
 
     return ThemeData(
       useMaterial3: true,
