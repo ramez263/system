@@ -7,6 +7,8 @@ import 'package:pigeon/pigeon.dart';
   kotlinOptions: KotlinOptions(
     package: 'com.ramez.tunnel_plus.vpn.bridge',
   ),
+  swiftOut: 'ios/Runner/VpnBridge.g.swift',
+  swiftOptions: SwiftOptions(),
 ))
 
 class VpnProfilePayload {

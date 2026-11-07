@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Apple NetworkExtension Packet Tunnel Entitlement -->
+    <key>com.apple.developer.networking.networkextension</key>
+    <array>
+        <string>packet-tunnel-provider</string>
+    </array>
+
+    <!-- App Groups for IPC and shared configuration storage -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.ramez.tunnel_plus</string>
+    </array>
+
+    <!-- Keychain Access Groups for sharing secure VPN credentials -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.ramez.tunnel_plus</string>
+    </array>
+</dict>
+</plist>

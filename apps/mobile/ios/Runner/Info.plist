@@ -7,7 +7,12 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tunnel Plus</string>
+	<string>Ramez Tunnel Plus</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>network-authentication</string>
+		<string>processing</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

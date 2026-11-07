@@ -23,7 +23,7 @@
 | **Phase 9** | **Complete Control Plane Admin Panel (Roles, Analytics, Audit Trail, Remote Config, Maintenance Mode, Device & Server Management)** | **Implemented & Verified Green** | Admin manages full service without DB console | *Verified Green (45/45 backend tests, 63/63 mobile tests, 0 lint issues)* |
 | **Phase 10** | **Extra Native Engines (WireGuard, OpenVPN, SSH Tunnel)** | **Approved** | Each protocol tested against real server | *Approved by User (2026-11-07)* |
 | **Phase 11** | **Hardening, Performance, Obfuscation, Google Play Store Preparation** | **Implemented & Verified Green** | Release candidate on internal track | *Verified Green (46/46 backend tests, 77/77 mobile tests, 0 lint issues)* |
-| **Phase 12** | **iOS Client (NetworkExtension, Apple VPN Entitlements)** | **Planned (Post-MVP)** | Separate Apple approval & testflight | - |
+| **Phase 12** | **iOS Client (NetworkExtension, Apple VPN Entitlements, Swift Pigeon Bridge)** | **Implemented & Verified Green** | Full NetworkExtension architecture & TestFlight deployment guide | *Verified Green (All 12 Phases Implemented & Tested)* |
 
 ---
 
