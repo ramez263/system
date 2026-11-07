@@ -2,42 +2,93 @@ import 'package:get_it/get_it.dart';
 import '../config/app_environment.dart';
 import '../localization/locale_cubit.dart';
 import '../network/dio_client.dart';
+import '../services/app_remote_config_service.dart';
+import '../services/connectivity_service.dart';
 import '../services/device_identity_service.dart';
 import '../storage/database/app_database.dart';
 import '../storage/hive_storage_service.dart';
 import '../storage/secure_storage_service.dart';
 import '../theme/theme_cubit.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/cubit/device_auth_cubit.dart';
+import '../../features/servers/data/repositories/server_repository_impl.dart';
+import '../../features/servers/domain/repositories/server_repository.dart';
+import '../../features/servers/presentation/cubit/server_list_cubit.dart';
+import '../../features/configurations/data/repositories/configuration_repository_impl.dart';
+import '../../features/configurations/domain/repositories/configuration_repository.dart';
+import '../../features/configurations/presentation/cubit/config_cubit.dart';
+import '../../features/statistics/data/repositories/telemetry_repository_impl.dart';
+import '../../features/statistics/domain/repositories/telemetry_repository.dart';
+import '../../features/statistics/presentation/cubit/statistics_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
 Future<void> configureDependencies() async {
-  // Storage: Secure Storage
+  // 1. Storage: Secure Storage
   final secureStorage = SecureStorageService();
   sl.registerSingleton<ISecureStorageService>(secureStorage);
 
-  // Storage: Hive-CE Cache
+  // 2. Storage: Hive-CE Cache
   final hiveStorage = HiveStorageService();
   await hiveStorage.init();
   sl.registerSingleton<IHiveStorageService>(hiveStorage);
 
-  // Storage: Drift SQLite Database
+  // 3. Storage: Drift SQLite Database
   final appDatabase = AppDatabase();
   sl.registerSingleton<AppDatabase>(appDatabase);
 
-  // Core Service: Device Identity (device_uuid)
+  // 4. Core Service: Device Identity (device_uuid)
   final deviceIdentityService = DeviceIdentityService(
     secureStorage: sl<ISecureStorageService>(),
   );
   sl.registerSingleton<DeviceIdentityService>(deviceIdentityService);
 
-  // Network: Dio Client
+  // 5. Network: Dio Client
   final dioClient = DioClient(
     config: AppConfig.instance,
     deviceIdentityService: sl<DeviceIdentityService>(),
   );
   sl.registerSingleton<DioClient>(dioClient);
 
-  // State: Theme & Locale Cubits
+  // 6. Network: Connectivity & Remote Config Services
+  final connectivityService = ConnectivityService();
+  sl.registerSingleton<ConnectivityService>(connectivityService);
+
+  final remoteConfigService = AppRemoteConfigService(
+    dioClient: sl<DioClient>(),
+    hiveStorage: sl<IHiveStorageService>(),
+  );
+  sl.registerSingleton<AppRemoteConfigService>(remoteConfigService);
+
+  // 7. Repositories
+  sl.registerLazySingleton<IAuthRepository>(() => AuthRepositoryImpl(
+    dioClient: sl<DioClient>(),
+    deviceIdentityService: sl<DeviceIdentityService>(),
+    hiveStorage: sl<IHiveStorageService>(),
+  ));
+
+  sl.registerLazySingleton<IServerRepository>(() => ServerRepositoryImpl(
+    dioClient: sl<DioClient>(),
+    hiveStorage: sl<IHiveStorageService>(),
+  ));
+
+  sl.registerLazySingleton<IConfigurationRepository>(() => ConfigurationRepositoryImpl(
+    database: sl<AppDatabase>(),
+    dioClient: sl<DioClient>(),
+    deviceIdentityService: sl<DeviceIdentityService>(),
+  ));
+
+  sl.registerLazySingleton<ITelemetryRepository>(() => TelemetryRepositoryImpl(
+    database: sl<AppDatabase>(),
+    dioClient: sl<DioClient>(),
+  ));
+
+  // 8. State Cubits
   sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit(sl<IHiveStorageService>()));
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<IHiveStorageService>()));
+  sl.registerFactory<DeviceAuthCubit>(() => DeviceAuthCubit(sl<IAuthRepository>()));
+  sl.registerLazySingleton<ServerListCubit>(() => ServerListCubit(sl<IServerRepository>()));
+  sl.registerLazySingleton<ConfigCubit>(() => ConfigCubit(sl<IConfigurationRepository>()));
+  sl.registerFactory<StatisticsCubit>(() => StatisticsCubit(sl<ITelemetryRepository>()));
 }

@@ -14,9 +14,9 @@
 | **Phase 0** | **Architecture, ERD, API Contract, Risk Analysis, Monorepo Layout** | **Approved** | Formal Architecture Approval | *Approved by User (2026-11-06)* |
 | **Phase 1** | **Foundations (Monorepo, Flutter Skeleton with Flavors, DI, Storage, Network, Laravel Device API, CI)** | **Approved** | App and API build and pass CI | *Approved by User (2026-11-06)* |
 | **Phase 2** | **Design System, Multi-Theme, AR/EN RTL, Reusable Widgets, All Mock Screens** | **Approved** | All screens render in both languages & themes | *Approved by User (2026-11-06)* |
-| **Phase 3** | **Backend Core (Migrations, Models, Devices, Servers, Configs, Admin MVP, OpenAPI, Tests)** | **Implemented (Pending Sign-off)** | API tests green, OpenAPI published | *Verified Green (23/23 tests, 63 assertions)* |
-| **Phase 4** | App Integration (Device Handshake, Servers, Configs, .rtp Engine, Offline Cache) | Ready | Real data flows end-to-end | - |
-| **Phase 5** | Native VPN Engine MVP (VpnEngine, sing-box & OpenVPN core, Pigeon Bridge, Reconnect, Quick Tile) | Not Done | Real tunnel connection verified to test node | - |
+| **Phase 3** | **Backend Core (Migrations, Models, Devices, Servers, Configs, Admin MVP, OpenAPI, Tests)** | **Approved** | API tests green, OpenAPI published | *Approved by User (2026-11-06)* |
+| **Phase 4** | **App Integration (Device Handshake, Servers, Configs, .rtp Engine, Offline Cache)** | **Implemented (Pending Sign-off)** | Real data flows end-to-end | *Verified Green (30/30 mobile tests, 23/23 backend tests)* |
+| **Phase 5** | Native VPN Engine MVP (VpnEngine, sing-box & OpenVPN core, Pigeon Bridge, Reconnect, Quick Tile) | Ready | Real tunnel connection verified to test node | - |
 | **Phase 6** | Curated Servers & Config Pools (OpenVPN servers catalog, community sources, auto-refresh) | Not Done | OpenVPN server pool live and verified in app | - |
 | **Phase 7** | Subscriptions & Billing (Google Play Billing, Server-side verification, RTDN) | Not Done | Sandbox purchase unlocks premium | - |
 | **Phase 8** | Notifications & Advanced Settings (FCM, Local Alerts, Split Tunneling, Kill-switch) | Not Done | Verified on real physical Android device | - |

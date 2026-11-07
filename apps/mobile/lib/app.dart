@@ -8,6 +8,8 @@ import 'core/localization/locale_cubit.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
+import 'features/configurations/presentation/cubit/config_cubit.dart';
+import 'features/servers/presentation/cubit/server_list_cubit.dart';
 
 class RamezTunnelApp extends StatelessWidget {
   const RamezTunnelApp({super.key});
@@ -18,6 +20,8 @@ class RamezTunnelApp extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>.value(value: sl<ThemeCubit>()),
         BlocProvider<LocaleCubit>.value(value: sl<LocaleCubit>()),
+        BlocProvider<ServerListCubit>.value(value: sl<ServerListCubit>()),
+        BlocProvider<ConfigCubit>.value(value: sl<ConfigCubit>()),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
