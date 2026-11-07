@@ -185,22 +185,10 @@ class _HomePageState extends State<HomePage> {
           appBar: ModernAppBar(
             title: strings.appName,
             showBack: false,
-            leadingWidget: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              child: Container(
-                margin: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.menu,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
+            leadingWidget: IconButton(
+              icon: const Icon(Icons.menu_rounded),
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
             ),
             actions: [
               IconButton(
@@ -1438,6 +1426,25 @@ class _PowerButton extends StatelessWidget {
             ? connectingColor
             : accentColor;
 
+    final Gradient buttonGradient;
+    if (isConnected) {
+      buttonGradient = LinearGradient(
+        colors: [connectedColor, connectedColor.withValues(alpha: 0.75)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (isConnecting) {
+      buttonGradient = LinearGradient(
+        colors: [connectingColor, connectingColor.withValues(alpha: 0.75)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else {
+      buttonGradient = (accentColor == AppColors.primaryBlue || accentColor == const Color(0xFF1864ab))
+          ? AppColors.appBarGradient
+          : AppColors.getThemeGradient(accentColor);
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1446,19 +1453,12 @@ class _PowerButton extends StatelessWidget {
         height: 210,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [
-              activeColor,
-              activeColor.withValues(alpha: 0.7),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: buttonGradient,
           boxShadow: [
             BoxShadow(
               color: activeColor.withValues(
-                  alpha: isConnected || isConnecting ? 0.45 : 0.2),
-              blurRadius: isConnected ? 40 : 20,
+                  alpha: isConnected || isConnecting ? 0.45 : 0.32),
+              blurRadius: isConnected ? 40 : 24,
               spreadRadius: isConnected ? 6 : 2,
               offset: const Offset(0, 12),
             ),

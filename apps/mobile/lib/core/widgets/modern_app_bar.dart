@@ -5,6 +5,8 @@ import '../theme/app_colors.dart';
 /// - Rich deep-to-vibrant horizontal blue gradient ([#07336E] to [#0F5EA8])
 /// - 32dp smooth bottom corner radii
 /// - Translucent squircle (rounded rectangle) leading/back and trailing action buttons
+/// - Shows screen-specific icon in squircle container if no action buttons are present
+/// - If action buttons exist (like notification or add button), keeps them in squircle container without duplicate icon
 /// - Centered bold white title with soft white subtitle
 /// - Direction-aware back arrow (points right in Arabic RTL, left in English LTR)
 class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -16,6 +18,8 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double? height;
   final Widget? leadingWidget;
   final LinearGradient? customGradient;
+  final IconData? screenIcon;
+  final bool showScreenIcon;
 
   const ModernAppBar({
     super.key,
@@ -27,10 +31,69 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.height,
     this.leadingWidget,
     this.customGradient,
+    this.screenIcon,
+    this.showScreenIcon = true,
   });
 
   double get effectiveHeight =>
       height ?? (subtitle != null && subtitle!.isNotEmpty ? 105.0 : 88.0);
+
+  IconData? get effectiveIcon {
+    if (screenIcon != null) return screenIcon;
+    if (!showScreenIcon) return null;
+
+    final lower = title.toLowerCase();
+    if (lower.contains('auth')) return Icons.fingerprint_rounded;
+    if (lower.contains('editor') || lower.contains('تعديل')) return Icons.edit_note_rounded;
+    if (lower.contains('import') || lower.contains('استيراد')) return Icons.file_download_outlined;
+    if (lower.contains('notif') || lower.contains('إشعار')) return Icons.notifications_none_rounded;
+    if (lower.contains('device') || lower.contains('أجهز')) return Icons.devices_rounded;
+    if (lower.contains('profile') || lower.contains('ملف')) return Icons.account_circle_outlined;
+    if (lower.contains('server') || lower.contains('خوادم') || lower.contains('خادم')) return Icons.dns_rounded;
+    if (lower.contains('network') || lower.contains('شبك')) return Icons.security_rounded;
+    if (lower.contains('setting') || lower.contains('إعداد')) return Icons.settings_suggest_rounded;
+    if (lower.contains('lang') || lower.contains('لغ')) return Icons.translate_rounded;
+    if (lower.contains('hist') || lower.contains('سجل')) return Icons.history_rounded;
+    if (lower.contains('stat') || lower.contains('telemet') || lower.contains('إحصائ') || lower.contains('بيانات')) return Icons.insights_rounded;
+    if (lower.contains('pay') || lower.contains('دفع')) return Icons.receipt_long_rounded;
+    if (lower.contains('plan') || lower.contains('subscrip') || lower.contains('خطة') || lower.contains('اشتراك')) return Icons.workspace_premium_rounded;
+    if (lower.contains('about') || lower.contains('حول')) return Icons.info_outline_rounded;
+    if (lower.contains('faq') || lower.contains('أسئل')) return Icons.help_outline_rounded;
+    if (lower.contains('support') || lower.contains('دعم')) return Icons.support_agent_rounded;
+    if (lower.contains('connect') || lower.contains('اتصال')) return Icons.speed_rounded;
+    return Icons.shield_rounded;
+  }
+
+  Widget _wrapAction(Widget action) {
+    Widget content = action;
+    if (action is IconButton) {
+      content = IconButton(
+        icon: action.icon,
+        onPressed: action.onPressed,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+        color: Colors.white,
+        tooltip: action.tooltip,
+      );
+    }
+    return Center(
+      child: Container(
+        width: 46,
+        height: 46,
+        margin: const EdgeInsetsDirectional.only(end: 14),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.22),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Center(
+          child: IconTheme(
+            data: const IconThemeData(color: Colors.white, size: 22),
+            child: content,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +106,39 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
         ((seedColor == AppColors.primaryBlue || seedColor == const Color(0xFF1864ab))
             ? AppColors.appBarGradient
             : AppColors.getThemeGradient(seedColor));
+
+    // Determine trailing actions
+    final bool hasExplicitActions = actions != null && actions!.isNotEmpty;
+    final List<Widget>? trailingWidgets;
+
+    if (hasExplicitActions) {
+      // If action buttons exist (e.g. notification, add, etc.), render them in squircles without duplicate icon
+      trailingWidgets = actions!.map((action) => _wrapAction(action)).toList();
+    } else if (effectiveIcon != null) {
+      // If no action buttons exist, render the screen icon in squircle container
+      trailingWidgets = [
+        Center(
+          child: Container(
+            width: 46,
+            height: 46,
+            margin: const EdgeInsetsDirectional.only(end: 14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Icon(
+                effectiveIcon,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+      ];
+    } else {
+      trailingWidgets = null;
+    }
 
     return AppBar(
       toolbarHeight: effectiveHeight,
@@ -81,7 +177,20 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
                   color: Colors.white.withValues(alpha: 0.22),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Center(child: leadingWidget),
+                child: Center(
+                  child: IconTheme(
+                    data: const IconThemeData(color: Colors.white, size: 22),
+                    child: leadingWidget is IconButton
+                        ? IconButton(
+                            icon: (leadingWidget as IconButton).icon,
+                            onPressed: (leadingWidget as IconButton).onPressed,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+                            color: Colors.white,
+                          )
+                        : leadingWidget!,
+                  ),
+                ),
               ),
             )
           : (showBack
@@ -154,22 +263,7 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       centerTitle: true,
-      actions: actions != null && actions!.isNotEmpty
-          ? actions!.map((action) {
-              return Center(
-                child: Container(
-                  width: 46,
-                  height: 46,
-                  margin: const EdgeInsetsDirectional.only(end: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(child: action),
-                ),
-              );
-            }).toList()
-          : null,
+      actions: trailingWidgets,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunnel_plus/core/widgets/modern_app_bar.dart';
+import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -69,26 +70,24 @@ class AdvancedNetworkSettingsPage extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, height: 1.5),
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            isArabic
-                                ? 'يرجى ضبط الإعداد من إعدادات VPN في نظام Android'
-                                : 'Open Android System Settings > VPN to configure Lockdown.',
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                RamezButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isArabic
+                              ? 'يرجى ضبط الإعداد من إعدادات VPN في نظام Android'
+                              : 'Open Android System Settings > VPN to configure Lockdown.',
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.open_in_new),
-                    label: Text(isArabic ? 'فهمت، شكراً' : 'Understood'),
-                  ),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  },
+                  icon: Icons.open_in_new_rounded,
+                  label: isArabic ? 'فهمت، شكراً' : 'Understood',
+                  height: 48,
                 ),
               ],
             ),

@@ -7,6 +7,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/services/device_identity_service.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -62,24 +63,16 @@ class _SplashPageState extends State<SplashPage>
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    // Background follows the selected theme preset (seed color)
     final brandColor = colorScheme.primary;
-    final surfaceColor = colorScheme.surface;
 
-    final textColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
+    const textColor = Colors.white;
 
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [surfaceColor, colorScheme.surfaceContainerHighest]
-                : [brandColor, brandColor.withValues(alpha: 0.8)],
-          ),
+        decoration: const BoxDecoration(
+          gradient: AppColors.appBarGradient,
         ),
         child: SafeArea(
           child: Stack(
@@ -209,12 +202,12 @@ class _SplashPageState extends State<SplashPage>
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: surfaceColor.withValues(
-                                alpha: isDark ? 0.14 : 0.17,
+                              color: Colors.white.withValues(
+                                alpha: isDark ? 0.14 : 0.18,
                               ),
                               border: Border.all(
-                                color: textColor.withValues(
-                                  alpha: isDark ? 0.18 : 0.22,
+                                color: Colors.white.withValues(
+                                  alpha: isDark ? 0.22 : 0.28,
                                 ),
                                 width: 1.5,
                               ),
@@ -258,7 +251,7 @@ class _SplashPageState extends State<SplashPage>
                       style: theme.textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.w900,
                         letterSpacing: -1.6,
-                        color: isDark ? brandColor : Colors.white,
+                        color: Colors.white,
                         height: 1.05,
                       ),
                     )

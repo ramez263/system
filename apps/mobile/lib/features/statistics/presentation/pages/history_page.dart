@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/modern_app_bar.dart';
+import '../../../../core/widgets/ramez_button.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -91,33 +92,21 @@ class HistoryPage extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isArabic ? 'تم حفظ ملف history.csv' : 'Saved history.csv to device',
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: RamezButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isArabic ? 'تم حفظ ملف history.csv' : 'Saved history.csv to device',
                     ),
-                  );
-                },
-                icon: const Icon(Icons.download, size: 20),
-                label: Text(
-                  isArabic ? 'تصدير السجل إلى ملف CSV' : 'Export History (CSV)',
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: 0,
-                ),
-              ),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+              },
+              icon: Icons.download_rounded,
+              label: isArabic ? 'تصدير السجل إلى ملف CSV' : 'Export History (CSV)',
+              height: 54,
             ),
           ),
         ],

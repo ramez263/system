@@ -157,10 +157,11 @@ class _PlansPageState extends State<PlansPage> {
               const SizedBox(height: 12),
               Text(state.message, textAlign: TextAlign.center),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
+              RamezButton(
                 onPressed: () => context.read<SubscriptionCubit>().loadSubscriptionData(),
-                icon: const Icon(Icons.refresh),
-                label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
+                icon: Icons.refresh_rounded,
+                label: isArabic ? 'إعادة المحاولة' : 'Retry',
+                width: 200,
               ),
             ],
           ),
