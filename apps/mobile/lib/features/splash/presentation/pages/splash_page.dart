@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/services/device_identity_service.dart';
@@ -202,30 +203,11 @@ class _SplashPageState extends State<SplashPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Subtle glowing dot indicator
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                    )
-                        .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                        .scale(
-                          begin: const Offset(0.8, 0.8),
-                          end: const Offset(1.2, 1.2),
-                          duration: 1000.ms,
-                        ),
-
-                    const SizedBox(height: 10),
+                    LoadingAnimationWidget.fourRotatingDots(
+                      color: Colors.white,
+                      size: 34,
+                    ),
+                    const SizedBox(height: 14),
 
                     // Status text
                     Text(
