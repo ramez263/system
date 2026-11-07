@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/app_strings.dart';
@@ -9,6 +9,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_extension.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../../../../core/widgets/ramez_status_chip.dart';
+import '../../../configurations/domain/entities/configuration_entity.dart';
+import '../../../servers/domain/entities/server_entity.dart';
+import '../../../vpn_connection/presentation/cubit/vpn_connection_cubit.dart';
+import '../../../vpn_connection/presentation/cubit/vpn_connection_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,9 +24,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _deviceUuid = 'Loading...';
   String _deviceModel = 'Loading...';
-  TunnelState _tunnelState = TunnelState.disconnected;
-  Timer? _sessionTimer;
-  int _secondsConnected = 0;
   String _selectedServerName = 'Frankfurt Fast-01 (Auto)';
   String _selectedServerFlag = '🇩🇪';
   Map<String, dynamic>? _selectedConfig;
@@ -139,12 +140,6 @@ class _HomePageState extends State<HomePage> {
     _loadDeviceInfo();
   }
 
-  @override
-  void dispose() {
-    _sessionTimer?.cancel();
-    super.dispose();
-  }
-
   Future<void> _loadDeviceInfo() async {
     final deviceService = sl<DeviceIdentityService>();
     final uuid = await deviceService.getOrCreateDeviceUuid();
@@ -157,192 +152,182 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _toggleConnection() {
-    if (_tunnelState == TunnelState.connected) {
-      _sessionTimer?.cancel();
-      setState(() {
-        _tunnelState = TunnelState.disconnected;
-        _secondsConnected = 0;
-      });
-    } else if (_tunnelState == TunnelState.disconnected) {
-      setState(() => _tunnelState = TunnelState.connecting);
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        if (mounted) {
-          setState(() {
-            _tunnelState = TunnelState.connected;
-            _secondsConnected = 0;
-          });
-          _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-            if (mounted) setState(() => _secondsConnected++);
-          });
-        }
-      });
-    }
-  }
-
-  String _formatDuration(int seconds) {
-    final h = (seconds ~/ 3600).toString().padLeft(2, '0');
-    final m = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
-    final s = (seconds % 60).toString().padLeft(2, '0');
-    if (h != '00') return '$h:$m:$s';
-    return '$m:$s';
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final ext = theme.extension<RamezThemeExtension>();
     final strings = AppStrings.of(context);
     final isArabic = strings.isArabic;
-    final isConnected = _tunnelState == TunnelState.connected;
-    final isConnecting = _tunnelState == TunnelState.connecting;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/images/logo.png', height: 28, width: 28),
-            const SizedBox(width: 10),
-            Text(
-              strings.appName,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w800, letterSpacing: -0.3),
+    return BlocConsumer<VpnConnectionCubit, VpnConnectionState>(
+      listener: (context, vpnState) {
+        if (vpnState.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(vpnState.errorMessage!),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            tooltip: strings.get('notifications_title'),
-            onPressed: () => context.push(AppRouter.notificationsPath),
+          );
+        }
+      },
+      builder: (context, vpnState) {
+        final tunnelState = vpnState.status;
+        final isConnected = vpnState.isConnected;
+        final isConnecting = vpnState.isConnecting;
+        final durationText = vpnState.formattedDuration;
+        final downloadSpeed = isConnected ? vpnState.downloadSpeedMbps : '0.0';
+        final uploadSpeed = isConnected ? vpnState.uploadSpeedMbps : '0.0';
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/images/logo.png', height: 28, width: 28),
+                const SizedBox(width: 10),
+                Text(
+                  strings.appName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                ),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                tooltip: strings.get('notifications_title'),
+                onPressed: () => context.push(AppRouter.notificationsPath),
+              ),
+            ],
           ),
-        ],
-      ),
-      drawer: _buildNavigationDrawer(context, strings, isArabic),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Guest Device Identity Banner
-              RamezGlassCard(
-                padding: const EdgeInsets.all(14),
-                onTap: () => context.push(AppRouter.deviceAuthPath),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.fingerprint,
-                          size: 26, color: theme.colorScheme.primary),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$_deviceModel • ${strings.guestSession}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 13),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _deviceUuid,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontFamily: 'monospace',
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right,
-                        size: 18, color: Colors.grey),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Center Animated Power Button
-              Center(
-                child: _PowerButton(
-                  state: _tunnelState,
-                  durationText: _formatDuration(_secondsConnected),
-                  label: isConnected
-                      ? strings.connected
-                      : isConnecting
-                          ? strings.connecting
-                          : strings.tapToConnect,
-                  accentColor: theme.colorScheme.primary,
-                  connectedColor: ext?.connectedColor ?? AppColors.success,
-                  connectingColor: ext?.connectingColor ?? AppColors.warning,
-                  onTap: isConnecting ? null : _toggleConnection,
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Status Chip
-              Center(
-                child: RamezStatusChip(state: _tunnelState),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Choose Server & Configuration (full-width rows)
-              _buildConnectionChooser(context, strings, isArabic),
-
-              const SizedBox(height: 18),
-
-              // Live Telemetry Row
-              Row(
+          drawer: _buildNavigationDrawer(context, strings, isArabic),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: _TelemetryTile(
-                      icon: Icons.arrow_downward_rounded,
-                      label: strings.downloadSpeed,
-                      value: isConnected ? '24.8' : '0.0',
-                      unit: 'Mbps',
-                      color: Colors.blue,
+                  // Guest Device Identity Banner
+                  RamezGlassCard(
+                    padding: const EdgeInsets.all(14),
+                    onTap: () => context.push(AppRouter.deviceAuthPath),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color:
+                                theme.colorScheme.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.fingerprint,
+                              size: 26, color: theme.colorScheme.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$_deviceModel • ${strings.guestSession}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 13),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _deviceUuid,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontFamily: 'monospace',
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right,
+                            size: 18, color: Colors.grey),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _TelemetryTile(
-                      icon: Icons.arrow_upward_rounded,
-                      label: strings.uploadSpeed,
-                      value: isConnected ? '8.4' : '0.0',
-                      unit: 'Mbps',
-                      color: Colors.purple,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _TelemetryTile(
-                      icon: Icons.network_ping_rounded,
-                      label: strings.latency,
-                      value: isConnected ? '32' : '--',
-                      unit: 'ms',
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
-              // Quick Action Shortcuts Grid
+                  // Center Animated Power Button
+                  Center(
+                    child: _PowerButton(
+                      state: tunnelState,
+                      durationText: durationText,
+                      label: isConnected
+                          ? strings.connected
+                          : isConnecting
+                              ? strings.connecting
+                              : strings.tapToConnect,
+                      accentColor: theme.colorScheme.primary,
+                      connectedColor: ext?.connectedColor ?? AppColors.success,
+                      connectingColor: ext?.connectingColor ?? AppColors.warning,
+                      onTap: isConnecting
+                          ? null
+                          : () => context
+                              .read<VpnConnectionCubit>()
+                              .toggleConnection(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // Status Chip
+                  Center(
+                    child: RamezStatusChip(state: tunnelState),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Choose Server & Configuration (full-width rows)
+                  _buildConnectionChooser(context, strings, isArabic, vpnState),
+
+                  const SizedBox(height: 18),
+
+                  // Live Telemetry Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TelemetryTile(
+                          icon: Icons.arrow_downward_rounded,
+                          label: strings.downloadSpeed,
+                          value: downloadSpeed,
+                          unit: 'Mbps',
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _TelemetryTile(
+                          icon: Icons.arrow_upward_rounded,
+                          label: strings.uploadSpeed,
+                          value: uploadSpeed,
+                          unit: 'Mbps',
+                          color: Colors.purple,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _TelemetryTile(
+                          icon: Icons.network_ping_rounded,
+                          label: strings.latency,
+                          value: isConnected ? '28' : '--',
+                          unit: 'ms',
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Quick Action Shortcuts Grid
               Text(
                 isArabic ? 'الوصول السريع' : 'Quick Actions',
                 style: theme.textTheme.titleSmall
@@ -386,12 +371,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+      },
+    );
   }
 
   Widget _buildConnectionChooser(
-      BuildContext context, AppStrings strings, bool isArabic) {
+      BuildContext context, AppStrings strings, bool isArabic, VpnConnectionState vpnState) {
     final colorScheme = Theme.of(context).colorScheme;
     final cfg = _selectedConfig;
+    final displayServerName =
+        vpnState.selectedServer?.name ?? _selectedServerName;
+    final displayServerFlag =
+        vpnState.selectedServer?.flagEmoji ?? _selectedServerFlag;
+    final displayConfigName = vpnState.selectedConfig?.name ??
+        (cfg != null
+            ? cfg['name'] as String
+            : (isArabic ? 'اختر تكويناً' : 'Select config'));
 
     return Column(
       children: [
@@ -406,10 +401,11 @@ class _HomePageState extends State<HomePage> {
               color: colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(_selectedServerFlag, style: const TextStyle(fontSize: 26)),
+            child: Text(displayServerFlag,
+                style: const TextStyle(fontSize: 26)),
           ),
           title: isArabic ? 'خادم' : 'CHOOSE SERVER',
-          subtitle: _selectedServerName,
+          subtitle: displayServerName,
           accentColor: colorScheme.primary,
         ),
         const SizedBox(height: 12),
@@ -428,7 +424,8 @@ class _HomePageState extends State<HomePage> {
                       color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: Image.asset(cfg['asset'] as String, fit: BoxFit.contain),
+                  child:
+                      Image.asset(cfg['asset'] as String, fit: BoxFit.contain),
                 )
               : Container(
                   width: 54,
@@ -437,12 +434,11 @@ class _HomePageState extends State<HomePage> {
                     color: const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.tune_rounded, color: Colors.white, size: 26),
+                  child: const Icon(Icons.tune_rounded,
+                      color: Colors.white, size: 26),
                 ),
           title: isArabic ? 'التكوين' : 'CHOOSE CONFIG',
-          subtitle: cfg != null
-              ? cfg['name'] as String
-              : (isArabic ? 'اختر تكويناً' : 'Select config'),
+          subtitle: displayConfigName,
           accentColor: const Color(0xFF1E293B),
         ),
       ],
@@ -583,6 +579,19 @@ class _HomePageState extends State<HomePage> {
                     return InkWell(
                       borderRadius: BorderRadius.circular(18),
                       onTap: () {
+                        final configEntity = ConfigurationEntity(
+                          id: index + 1,
+                          name: cfg['name'] as String,
+                          protocol: 'ovpn',
+                          serverAddress: '185.220.101.5',
+                          serverPort: cfg['port'] as int,
+                          rawConfig:
+                              'client\ndev tun\nproto udp\nremote 185.220.101.5 ${cfg['port']}\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\nverb 3\n',
+                          createdAt: DateTime.now(),
+                        );
+                        context
+                            .read<VpnConnectionCubit>()
+                            .selectConfig(configEntity);
                         setState(() => _selectedConfig = cfg);
                         Navigator.pop(ctx);
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -788,6 +797,26 @@ class _HomePageState extends State<HomePage> {
                     return InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
+                        final server = ServerEntity(
+                          id: index + 1,
+                          name: s['name'] as String,
+                          countryCode: s['flag'] == '🇩🇪'
+                              ? 'DE'
+                              : s['flag'] == '🇳🇱'
+                                  ? 'NL'
+                                  : 'US',
+                          countryName: s['country_name'] as String,
+                          city: s['city'] as String,
+                          flagEmoji: s['flag'] as String,
+                          protocol: 'ovpn',
+                          ipAddress: '185.220.101.${index + 10}',
+                          port: 1194,
+                          pingMs: ping,
+                          currentLoad: s['load'] as int,
+                          isPremium: false,
+                          hasOvpn: true,
+                        );
+                        context.read<VpnConnectionCubit>().selectServer(server);
                         setState(() {
                           _selectedServerName = s['name'] as String;
                           _selectedServerFlag = s['flag'] as String;
@@ -1390,7 +1419,8 @@ class _PowerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isConnected = state == TunnelState.connected;
-    final isConnecting = state == TunnelState.connecting;
+    final isConnecting =
+        state == TunnelState.connecting || state == TunnelState.reconnecting;
 
     final activeColor = isConnected
         ? connectedColor

@@ -21,6 +21,8 @@ import '../../features/configurations/presentation/cubit/config_cubit.dart';
 import '../../features/statistics/data/repositories/telemetry_repository_impl.dart';
 import '../../features/statistics/domain/repositories/telemetry_repository.dart';
 import '../../features/statistics/presentation/cubit/statistics_cubit.dart';
+import '../vpn/vpn_service.dart';
+import '../../features/vpn_connection/presentation/cubit/vpn_connection_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -84,11 +86,19 @@ Future<void> configureDependencies() async {
     dioClient: sl<DioClient>(),
   ));
 
-  // 8. State Cubits
+  // 8. Native VPN Service
+  sl.registerLazySingleton<IVpnService>(() => VpnService());
+
+  // 9. State Cubits
   sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit(sl<IHiveStorageService>()));
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<IHiveStorageService>()));
   sl.registerFactory<DeviceAuthCubit>(() => DeviceAuthCubit(sl<IAuthRepository>()));
   sl.registerLazySingleton<ServerListCubit>(() => ServerListCubit(sl<IServerRepository>()));
   sl.registerLazySingleton<ConfigCubit>(() => ConfigCubit(sl<IConfigurationRepository>()));
   sl.registerFactory<StatisticsCubit>(() => StatisticsCubit(sl<ITelemetryRepository>()));
+  sl.registerLazySingleton<VpnConnectionCubit>(() => VpnConnectionCubit(
+    vpnService: sl<IVpnService>(),
+    serverRepository: sl<IServerRepository>(),
+    telemetryRepository: sl<ITelemetryRepository>(),
+  ));
 }

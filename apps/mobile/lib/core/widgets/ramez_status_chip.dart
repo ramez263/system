@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/theme_extension.dart';
 
-enum TunnelState { connected, connecting, disconnected, failed }
+enum TunnelState { connected, connecting, reconnecting, disconnected, failed }
 
 class RamezStatusChip extends StatelessWidget {
   final TunnelState state;
@@ -31,6 +31,11 @@ class RamezStatusChip extends StatelessWidget {
         color = ext?.connectingColor ?? Colors.amber;
         defaultLabel = 'Connecting';
         icon = Icons.sync;
+        break;
+      case TunnelState.reconnecting:
+        color = ext?.connectingColor ?? Colors.orange;
+        defaultLabel = 'Reconnecting';
+        icon = Icons.sync_problem;
         break;
       case TunnelState.disconnected:
         color = ext?.disconnectedColor ?? Colors.grey;
