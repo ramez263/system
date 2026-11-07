@@ -58,6 +58,11 @@ class Device extends Model
             ->latestOfMany();
     }
 
+    public function notificationPreference(): HasOne
+    {
+        return $this->hasOne(DeviceNotificationPreference::class);
+    }
+
     public function redeemedPromoCodes(): BelongsToMany
     {
         return $this->belongsToMany(PromoCode::class, 'promo_code_redemptions')

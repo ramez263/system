@@ -43,7 +43,7 @@ class _SplashPageState extends State<SplashPage>
     await deviceService.getOrCreateDeviceUuid();
 
     // Small delay for smooth splash transition
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
       context.go(AppRouter.homePath);

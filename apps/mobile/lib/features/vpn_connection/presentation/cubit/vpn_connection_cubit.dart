@@ -6,6 +6,7 @@ import '../../../../core/widgets/ramez_status_chip.dart';
 import '../../../configurations/domain/entities/configuration_entity.dart';
 import '../../../servers/domain/entities/server_entity.dart';
 import '../../../servers/domain/repositories/server_repository.dart';
+import '../../../settings/domain/repositories/settings_repository.dart';
 import '../../../statistics/domain/entities/session_record.dart';
 import '../../../statistics/domain/repositories/telemetry_repository.dart';
 import 'vpn_connection_state.dart';
@@ -14,6 +15,7 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
   final IVpnService _vpnService;
   final IServerRepository _serverRepository;
   final ITelemetryRepository? _telemetryRepository;
+  final ISettingsRepository? _settingsRepository;
 
   StreamSubscription<TunnelState>? _statusSubscription;
   StreamSubscription<VpnStatsPayload>? _statsSubscription;
@@ -22,9 +24,11 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
     required IVpnService vpnService,
     required IServerRepository serverRepository,
     ITelemetryRepository? telemetryRepository,
+    ISettingsRepository? settingsRepository,
   })  : _vpnService = vpnService,
         _serverRepository = serverRepository,
         _telemetryRepository = telemetryRepository,
+        _settingsRepository = settingsRepository,
         super(const VpnConnectionState()) {
     _init();
   }
@@ -120,7 +124,29 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
         return;
       }
 
-      // 2. Build profile payload
+      // 2. Resolve DNS servers and Split Tunneling preferences
+      List<String> dnsServers = const ['1.1.1.1', '8.8.8.8'];
+      List<String> excludedApps = const [];
+
+      if (_settingsRepository != null) {
+        try {
+          final adv = await _settingsRepository.getAdvancedSettings();
+          if (adv.splitTunnelingEnabled && adv.splitTunnelingMode == 'exclude') {
+            excludedApps = adv.selectedApps;
+          }
+          if (adv.dnsProvider.contains('Google')) {
+            dnsServers = ['8.8.8.8', '8.8.4.4'];
+          } else if (adv.dnsProvider.contains('AdGuard')) {
+            dnsServers = ['94.140.14.14', '94.140.15.15'];
+          } else if (adv.dnsProvider.contains('Quad9')) {
+            dnsServers = ['9.9.9.9', '149.112.112.112'];
+          } else if (adv.customDns.isNotEmpty) {
+            dnsServers = [adv.customDns];
+          }
+        } catch (_) {}
+      }
+
+      // 3. Build profile payload
       final VpnProfilePayload profile;
 
       if (state.selectedConfig != null) {
@@ -132,9 +158,9 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
           serverAddress: cfg.serverAddress,
           serverPort: cfg.serverPort,
           rawPayload: cfg.rawConfig,
-          dnsServers: const ['1.1.1.1', '8.8.8.8'],
+          dnsServers: dnsServers,
           bypassLan: true,
-          excludedApps: const [],
+          excludedApps: excludedApps,
         );
       } else if (state.selectedServer != null) {
         final server = state.selectedServer!;
@@ -155,9 +181,9 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
           serverAddress: server.ipAddress,
           serverPort: server.port,
           rawPayload: rawConfig,
-          dnsServers: const ['1.1.1.1', '8.8.8.8'],
+          dnsServers: dnsServers,
           bypassLan: true,
-          excludedApps: const [],
+          excludedApps: excludedApps,
         );
       } else {
         // Fallback default: Frankfurt fast server
@@ -169,9 +195,9 @@ class VpnConnectionCubit extends Cubit<VpnConnectionState> {
           serverPort: 1194,
           rawPayload:
               'client\ndev tun\nproto udp\nremote 185.220.101.5 1194\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\nverb 3\n',
-          dnsServers: const ['1.1.1.1', '8.8.8.8'],
+          dnsServers: dnsServers,
           bypassLan: true,
-          excludedApps: const [],
+          excludedApps: excludedApps,
         );
       }
 

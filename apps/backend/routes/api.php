@@ -39,6 +39,12 @@ Route::prefix('v1')->group(function () {
     Route::post('/telemetry/session', [TelemetryController::class, 'storeSession']);
     Route::get('/telemetry/summary', [TelemetryController::class, 'summary']);
 
-    // 6. Remote app configuration & feature flags
+    // 6. Notifications & Broadcast Announcements
+    Route::get('/notifications/preferences', [\App\Http\Controllers\Api\V1\NotificationController::class, 'preferences']);
+    Route::post('/notifications/preferences', [\App\Http\Controllers\Api\V1\NotificationController::class, 'updatePreferences']);
+    Route::get('/notifications/announcements', [\App\Http\Controllers\Api\V1\NotificationController::class, 'announcements']);
+    Route::post('/notifications/test-dispatch', [\App\Http\Controllers\Api\V1\NotificationController::class, 'testDispatch']);
+
+    // 7. Remote app configuration & feature flags
     Route::get('/app/config', [AppConfigController::class, 'config']);
 });

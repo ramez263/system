@@ -27,6 +27,12 @@ import '../../features/subscriptions/data/repositories/subscription_repository_i
 import '../../features/subscriptions/domain/repositories/subscription_repository.dart';
 import '../../features/subscriptions/data/services/billing_service.dart';
 import '../../features/subscriptions/presentation/cubit/subscription_cubit.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/presentation/cubit/notification_cubit.dart';
+import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/repositories/settings_repository.dart';
+import '../../features/settings/presentation/cubit/settings_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -97,6 +103,15 @@ Future<void> configureDependencies() async {
     hiveStorage: sl<IHiveStorageService>(),
   ));
 
+  sl.registerLazySingleton<INotificationRepository>(() => NotificationRepositoryImpl(
+    dioClient: sl<DioClient>(),
+    hiveStorage: sl<IHiveStorageService>(),
+  ));
+
+  sl.registerLazySingleton<ISettingsRepository>(() => SettingsRepositoryImpl(
+    hiveStorage: sl<IHiveStorageService>(),
+  ));
+
   // 8. Native VPN Service
   sl.registerLazySingleton<IVpnService>(() => VpnService());
 
@@ -111,9 +126,16 @@ Future<void> configureDependencies() async {
     repository: sl<ISubscriptionRepository>(),
     billingService: sl<BillingService>(),
   ));
+  sl.registerLazySingleton<NotificationCubit>(() => NotificationCubit(
+    repository: sl<INotificationRepository>(),
+  ));
+  sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(
+    repository: sl<ISettingsRepository>(),
+  ));
   sl.registerLazySingleton<VpnConnectionCubit>(() => VpnConnectionCubit(
     vpnService: sl<IVpnService>(),
     serverRepository: sl<IServerRepository>(),
     telemetryRepository: sl<ITelemetryRepository>(),
+    settingsRepository: sl<ISettingsRepository>(),
   ));
 }

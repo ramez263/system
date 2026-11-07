@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ServerSeeder::class,
             PlanSeeder::class,
             PromoCodeSeeder::class,
+            AnnouncementSeeder::class,
             AppSettingSeeder::class,
             ConfigurationSeeder::class,
         ]);

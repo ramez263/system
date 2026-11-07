@@ -284,6 +284,59 @@
         "summary": "Remote Application Configuration & Feature Flags",
         "responses": { "200": { "description": "Dynamic app settings, min app version, and announcement banner" } }
       }
+    },
+    "/notifications/preferences": {
+      "get": {
+        "summary": "Get Device Notification Preferences",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Notification category switches (connection, security, promotions, updates)" } }
+      },
+      "post": {
+        "summary": "Update Device Notification Preferences",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notify_connection": { "type": "boolean" },
+                  "notify_disconnection": { "type": "boolean" },
+                  "notify_server_failure": { "type": "boolean" },
+                  "notify_subscription_expiry": { "type": "boolean" },
+                  "notify_security_alerts": { "type": "boolean" },
+                  "notify_updates": { "type": "boolean" },
+                  "notify_promotions": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Preferences updated" } }
+      }
+    },
+    "/notifications/announcements": {
+      "get": {
+        "summary": "List Broadcast Announcements & Alerts",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Active announcements list" } }
+      }
+    },
+    "/notifications/test-dispatch": {
+      "post": {
+        "summary": "Dispatch Test Notification",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Test alert dispatched" } }
+      }
     }
   }
 }
