@@ -27,6 +27,7 @@ import 'package:tunnel_plus/features/subscriptions/presentation/pages/plans_page
 import 'package:tunnel_plus/features/support/presentation/pages/about_page.dart';
 import 'package:tunnel_plus/features/support/presentation/pages/faq_page.dart';
 import 'package:tunnel_plus/features/support/presentation/pages/support_center_page.dart';
+import 'package:tunnel_plus/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:tunnel_plus/features/vpn_connection/presentation/pages/connection_details_page.dart';
 
 class MockHiveStorageService implements IHiveStorageService {
@@ -280,6 +281,24 @@ void main() {
       ));
       await tester.pump();
       expect(find.byType(AboutPage), findsOneWidget);
+    });
+
+    testWidgets('Renders NotificationsPage in Arabic RTL & English LTR', (tester) async {
+      await tester.pumpWidget(createTestableWidget(
+        child: const NotificationsPage(),
+        locale: const Locale('ar'),
+        brightness: Brightness.dark,
+      ));
+      await tester.pump();
+      expect(find.byType(NotificationsPage), findsOneWidget);
+
+      await tester.pumpWidget(createTestableWidget(
+        child: const NotificationsPage(),
+        locale: const Locale('en'),
+        brightness: Brightness.light,
+      ));
+      await tester.pump();
+      expect(find.byType(NotificationsPage), findsOneWidget);
     });
   });
 }

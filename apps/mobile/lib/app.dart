@@ -37,7 +37,7 @@ class RamezTunnelApp extends StatelessWidget {
             builder: (context, themeState) {
               return MaterialApp.router(
                 title: AppConfig.instance.appName,
-                debugShowCheckedModeBanner: !AppConfig.instance.isProduction,
+                debugShowCheckedModeBanner: false,
                 routerConfig: AppRouter.router,
                 locale: locale,
                 supportedLocales: const [

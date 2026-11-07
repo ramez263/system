@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/services/device_identity_service.dart';
@@ -16,25 +13,10 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _orbitController;
-  late Animation<double> _ringAnimation;
-
+class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-
-    _orbitController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat();
-
-    _ringAnimation = Tween<double>(begin: 0, end: 2 * pi)
-        .animate(
-          CurvedAnimation(parent: _orbitController, curve: Curves.linear),
-        );
-
     _initializeApp();
   }
 
@@ -44,7 +26,7 @@ class _SplashPageState extends State<SplashPage>
     await deviceService.getOrCreateDeviceUuid();
 
     // Small delay for smooth splash transition
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
       context.go(AppRouter.homePath);
@@ -52,298 +34,213 @@ class _SplashPageState extends State<SplashPage>
   }
 
   @override
-  void dispose() {
-    _orbitController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final brandColor = colorScheme.primary;
 
-    const textColor = Colors.white;
+    // Dynamically adapts the vertical background gradient to the selected app color theme
+    final splashGradient = AppColors.getSplashGradient(brandColor);
 
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.appBarGradient,
+        decoration: BoxDecoration(
+          gradient: splashGradient,
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              // Decorative glow blobs that follow the theme color
+              // 1. Top-Right subtle decorative circle (from screenshot)
               Positioned(
-                top: -120,
-                left: -60,
+                top: -110,
+                right: -90,
                 child: Container(
                   width: 340,
                   height: 340,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        brandColor.withValues(alpha: isDark ? 0.25 : 0.35),
-                        Colors.transparent,
-                      ],
-                    ),
+                    color: Colors.white.withValues(alpha: 0.04),
                   ),
                 ),
               ),
+
+              // 2. Top-Left rounded squircle border outline (from screenshot)
               Positioned(
-                bottom: -130,
-                right: -70,
+                top: 85,
+                left: -40,
                 child: Container(
-                  width: 300,
-                  height: 300,
+                  width: 140,
+                  height: 140,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        brandColor.withValues(alpha: isDark ? 0.15 : 0.2),
-                        Colors.transparent,
-                      ],
+                    borderRadius: BorderRadius.circular(42),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1.5,
                     ),
                   ),
                 ),
               ),
 
-              // Central animated universe: ring + orbiting planets around logo
+              // 3. Bottom-Right rounded squircle border outline (from screenshot)
+              Positioned(
+                bottom: 120,
+                right: -45,
+                child: Container(
+                  width: 155,
+                  height: 155,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(46),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 4. Bottom-Left subtle decorative circle (from screenshot)
+              Positioned(
+                bottom: -110,
+                left: -100,
+                child: Container(
+                  width: 360,
+                  height: 360,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: 0.12),
+                  ),
+                ),
+              ),
+
+              // Center Brand & Logo Identity (matching screenshot)
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Animated ring + planets container
-                    SizedBox(
-                      width: 220,
-                      height: 220,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Outer rotating ring
-                          AnimatedBuilder(
-                            animation: _ringAnimation,
-                            builder: (context, child) {
-                              return Transform.rotate(
-                                angle: _ringAnimation.value,
-                                child: Container(
-                                  width: 200,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: brandColor.withValues(
-                                        alpha: isDark ? 0.5 : 0.35,
-                                      ),
-                                      width: 2.5,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                    // Circular Emblem badge (from screenshot)
+                    Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.28),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.20),
+                            blurRadius: 28,
+                            offset: const Offset(0, 10),
                           ),
-
-                          // Orbiting planets
-                          ...List.generate(3, (index) {
-                            final double angleOffset =
-                                (index / 3) * 2 * pi;
-                            final double orbitRadius = 60 + (index * 14);
-                            final planetColors = [
-                              brandColor.withValues(alpha: 0.9),
-                              brandColor.withValues(alpha: 0.65),
-                              brandColor.withValues(alpha: 0.45),
-                            ];
-
-                            final double planetSize = 10 + (index * 3);
-
-                            return AnimatedBuilder(
-                              animation: _ringAnimation,
-                              builder: (context, child) {
-                                final double angle =
-                                    _ringAnimation.value + angleOffset;
-                                // Elliptical orbit around the center (100, 100)
-                                final double x =
-                                    100 + orbitRadius * cos(angle) - planetSize / 2;
-                                final double y =
-                                    100 + orbitRadius * 0.62 * sin(angle) -
-                                        planetSize / 2;
-                                return Positioned(
-                                  left: x,
-                                  top: y,
-                                  child: Container(
-                                    width: planetSize,
-                                    height: planetSize,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: planetColors[index],
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: planetColors[index]
-                                              .withValues(alpha: 0.6),
-                                          blurRadius: 8,
-                                          spreadRadius: 1,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          }),
-
-                          // Logo in glass card at center
-                          Container(
-                            margin: const EdgeInsets.all(26),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(
-                                alpha: isDark ? 0.14 : 0.18,
-                              ),
-                              border: Border.all(
-                                color: Colors.white.withValues(
-                                  alpha: isDark ? 0.22 : 0.28,
-                                ),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: brandColor.withValues(alpha: 0.28),
-                                  blurRadius: 36,
-                                  spreadRadius: 2,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              width: 96,
-                              height: 96,
-                            ),
-                          )
-                              .animate()
-                              .scale(
-                                duration: 1100.ms,
-                                curve: Curves.elasticOut,
-                                begin: const Offset(0.6, 0.6),
-                              )
-                              .shimmer(
-                                duration: 2200.ms,
-                                color: textColor.withValues(alpha: 0.3),
-                              ),
                         ],
+                      ),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 96,
+                          height: 96,
+                        ),
                       ),
                     )
                         .animate()
-                        .fadeIn(duration: 800.ms, delay: 100.ms),
+                        .scale(
+                          duration: 900.ms,
+                          curve: Curves.elasticOut,
+                          begin: const Offset(0.7, 0.7),
+                        )
+                        .fadeIn(duration: 600.ms),
+
+                    const SizedBox(height: 28),
+
+                    // App Name (bold white calligraphy/modern typography)
+                    Text(
+                      isArabic ? 'رامز تنل بلس' : 'Ramez Tunnel Plus',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.6,
+                        color: Colors.white,
+                        height: 1.15,
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: 800.ms, delay: 250.ms),
 
                     const SizedBox(height: 8),
 
-                    // App name with strong solid color
+                    // Tagline (from screenshot)
                     Text(
-                      'Ramez Tunnel Plus',
+                      isArabic
+                          ? 'نفقك الآمن لتشفير البيانات وتخطي القيود'
+                          : 'Secure, High-Speed VPN & Tunneling',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1.6,
-                        color: Colors.white,
-                        height: 1.05,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        height: 1.4,
                       ),
                     )
                         .animate()
-                        .fadeIn(duration: 800.ms, delay: 300.ms),
-
-                    const SizedBox(height: 12),
-
-                    // Tagline
-                    Text(
-                      'Secure, High-Speed VPN & Tunneling',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: textColor.withValues(alpha: 0.9),
-                        letterSpacing: 0.7,
-                        height: 1.5,
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 800.ms, delay: 550.ms),
-
-                    const SizedBox(height: 66),
-
-                    // Modern loading animation (loading_animation_widget)
-                    SizedBox(
-                      height: 72,
-                      width: 72,
-                      child: LoadingAnimationWidget.fourRotatingDots(
-                        color: textColor,
-                        size: 46,
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 800.ms, delay: 800.ms)
-                        .scale(
-                          begin: const Offset(0.85, 0.85),
-                          end: const Offset(1, 1),
-                          duration: 800.ms,
-                          delay: 800.ms,
-                          curve: Curves.easeOutBack,
-                        ),
-
-                    const SizedBox(height: 22),
-
-                    // Subtle status text
-                    Text(
-                      'Initializing secure connection...',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: textColor.withValues(alpha: 0.6),
-                        letterSpacing: 1.2,
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 800.ms, delay: 1000.ms),
+                        .fadeIn(duration: 800.ms, delay: 450.ms),
                   ],
                 ),
               ),
 
-              // Bottom version badge
+              // Bottom Loading Section (from screenshot)
               Positioned(
-                bottom: 36,
+                bottom: 48,
                 left: 0,
                 right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Subtle glowing dot indicator
                     Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                      width: 8,
+                      height: 8,
                       decoration: BoxDecoration(
-                        color: textColor.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: textColor.withValues(alpha: 0.22),
-                          width: 1,
-                        ),
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        'v1.0.0',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: textColor.withValues(alpha: 0.85),
-                          letterSpacing: 1.4,
-                          fontWeight: FontWeight.w700,
+                    )
+                        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                        .scale(
+                          begin: const Offset(0.8, 0.8),
+                          end: const Offset(1.2, 1.2),
+                          duration: 1000.ms,
                         ),
+
+                    const SizedBox(height: 10),
+
+                    // Status text
+                    Text(
+                      isArabic ? '...جاري تجهيز التطبيق' : 'Initializing application...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        letterSpacing: 0.6,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 800.ms, delay: 1100.ms),
+              ),
             ],
           ),
         ),

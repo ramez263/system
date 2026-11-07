@@ -54,6 +54,26 @@ class AppColors {
     );
   }
 
+  /// Generates the vertical background gradient for the splash screen matching the screenshot,
+  /// adapting dynamically to the selected app color theme preset.
+  static LinearGradient getSplashGradient(Color seedColor) {
+    if (seedColor == primaryBlue || seedColor == const Color(0xFF1864ab)) {
+      return const LinearGradient(
+        colors: [Color(0xFF13589E), Color(0xFF072A54)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      );
+    }
+    final hsl = HSLColor.fromColor(seedColor);
+    final darkTone = hsl.withLightness((hsl.lightness * 0.55).clamp(0.08, 0.32)).toColor();
+    final brightTone = hsl.withLightness((hsl.lightness * 1.15).clamp(0.35, 0.58)).toColor();
+    return LinearGradient(
+      colors: [brightTone, darkTone],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    );
+  }
+
   // Status Colors (WCAG AA Compliant)
   static const Color success = Color(0xFF10B981); // Emerald 500
   static const Color warning = Color(0xFFF59E0B);   // Amber 500
