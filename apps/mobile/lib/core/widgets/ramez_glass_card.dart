@@ -9,6 +9,8 @@ class RamezGlassCard extends StatelessWidget {
   final double borderRadius;
   final Color? customBackground;
   final Border? customBorder;
+  final Gradient? gradient;
+  final List<BoxShadow>? customShadow;
 
   const RamezGlassCard({
     super.key,
@@ -19,6 +21,8 @@ class RamezGlassCard extends StatelessWidget {
     this.borderRadius = 16.0,
     this.customBackground,
     this.customBorder,
+    this.gradient,
+    this.customShadow,
   });
 
   @override
@@ -26,15 +30,16 @@ class RamezGlassCard extends StatelessWidget {
     final ext = Theme.of(context).extension<RamezThemeExtension>();
 
     final decoration = BoxDecoration(
-      color: customBackground ?? ext?.glassBackground ?? Colors.black12,
+      color: gradient != null ? null : (customBackground ?? ext?.glassBackground ?? Colors.black12),
+      gradient: gradient,
       borderRadius: BorderRadius.circular(borderRadius),
-      border: customBorder ?? Border.all(
+      border: customBorder ?? (gradient != null ? null : Border.all(
         color: ext?.glassBorder ?? Colors.white10,
         width: 1.0,
-      ),
-      boxShadow: [
+      )),
+      boxShadow: customShadow ?? [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
+          color: Colors.black.withValues(alpha: 0.06),
           blurRadius: 16,
           offset: const Offset(0, 4),
         ),

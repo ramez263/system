@@ -30,6 +30,30 @@ class AppColors {
   // Alahisan-style dark color (deep navy/charcoal for dark mode scaffold)
   static const Color darkColor = Color(0xff0f161e);
 
+  // Signature screenshot-inspired AppBar gradient:
+  // Deep rich royal navy (#07336E) on the left to vibrant cobalt blue (#0F5EA8) on the right
+  static const Color appBarGradientStart = Color(0xFF07336E);
+  static const Color appBarGradientEnd = Color(0xFF0F5EA8);
+
+  static const LinearGradient appBarGradient = LinearGradient(
+    colors: [appBarGradientStart, appBarGradientEnd],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  /// Dynamically computes a matching two-tone gradient for any theme seed color,
+  /// preserving the exact deep-to-vibrant horizontal balance seen in the screenshot.
+  static LinearGradient getThemeGradient(Color seedColor) {
+    final hsl = HSLColor.fromColor(seedColor);
+    final darkTone = hsl.withLightness((hsl.lightness * 0.70).clamp(0.12, 0.45)).toColor();
+    final brightTone = hsl.withLightness((hsl.lightness * 1.15).clamp(0.35, 0.65)).toColor();
+    return LinearGradient(
+      colors: [darkTone, brightTone],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    );
+  }
+
   // Status Colors (WCAG AA Compliant)
   static const Color success = Color(0xFF10B981); // Emerald 500
   static const Color warning = Color(0xFFF59E0B);   // Amber 500
