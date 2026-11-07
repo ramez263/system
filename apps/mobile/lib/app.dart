@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'features/configurations/presentation/cubit/config_cubit.dart';
 import 'features/servers/presentation/cubit/server_list_cubit.dart';
+import 'features/subscriptions/presentation/cubit/subscription_cubit.dart';
 import 'features/vpn_connection/presentation/cubit/vpn_connection_cubit.dart';
 
 class RamezTunnelApp extends StatelessWidget {
@@ -24,6 +25,7 @@ class RamezTunnelApp extends StatelessWidget {
         BlocProvider<ServerListCubit>.value(value: sl<ServerListCubit>()),
         BlocProvider<ConfigCubit>.value(value: sl<ConfigCubit>()),
         BlocProvider<VpnConnectionCubit>.value(value: sl<VpnConnectionCubit>()),
+        BlocProvider<SubscriptionCubit>.value(value: sl<SubscriptionCubit>()..loadSubscriptionData()),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {

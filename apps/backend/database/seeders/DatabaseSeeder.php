@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ServerSeeder::class,
             PlanSeeder::class,
+            PromoCodeSeeder::class,
             AppSettingSeeder::class,
             ConfigurationSeeder::class,
         ]);

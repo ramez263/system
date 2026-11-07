@@ -15,13 +15,20 @@ class Subscription extends Model
         'plan_id',
         'status',
         'store',
+        'amount_paid_cents',
+        'currency',
         'purchase_token',
         'order_id',
+        'is_auto_renewing',
+        'raw_verification_payload',
         'starts_at',
         'expires_at',
     ];
 
     protected $casts = [
+        'amount_paid_cents' => 'integer',
+        'is_auto_renewing' => 'boolean',
+        'raw_verification_payload' => 'array',
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
     ];
@@ -47,7 +54,7 @@ class Subscription extends Model
 
     public function isValid(): bool
     {
-        if ($this->status !== 'active') {
+        if (!in_array($this->status, ['active', 'in_grace_period'])) {
             return false;
         }
         return $this->expires_at === null || $this->expires_at->isFuture();

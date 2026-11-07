@@ -15,6 +15,7 @@ class PlanSeeder extends Seeder
         $plans = [
             [
                 'slug' => 'free',
+                'google_play_product_id' => null,
                 'name' => 'Free Guest Tier',
                 'description' => 'Unlimited standard servers with speed capped at 10 Mbps and community OpenVPN support.',
                 'price_cents' => 0,
@@ -27,9 +28,11 @@ class PlanSeeder extends Seeder
                     'Custom .rtp/.ovpn import',
                 ],
                 'is_active' => true,
+                'is_featured' => false,
             ],
             [
                 'slug' => 'pro_monthly',
+                'google_play_product_id' => 'com.ramez.tunnelplus.pro_monthly',
                 'name' => 'Pro Monthly',
                 'description' => 'Full unthrottled gigabit bandwidth, all global VIP nodes, zero logs, priority DNS routing.',
                 'price_cents' => 499,
@@ -43,9 +46,11 @@ class PlanSeeder extends Seeder
                     'Zero latency gaming & streaming routes',
                 ],
                 'is_active' => true,
+                'is_featured' => false,
             ],
             [
                 'slug' => 'pro_annual',
+                'google_play_product_id' => 'com.ramez.tunnelplus.pro_annual',
                 'name' => 'Pro Annual (Best Value)',
                 'description' => 'Save 50% on annual subscription. 12 months of high-speed tunneling.',
                 'price_cents' => 2999,
@@ -58,9 +63,11 @@ class PlanSeeder extends Seeder
                     'Custom payload generator',
                 ],
                 'is_active' => true,
+                'is_featured' => true,
             ],
             [
                 'slug' => 'vip_lifetime',
+                'google_play_product_id' => 'com.ramez.tunnelplus.vip_lifetime',
                 'name' => 'VIP Lifetime Access',
                 'description' => 'One-time payment for lifetime VIP access on your device.',
                 'price_cents' => 7999,
@@ -72,6 +79,7 @@ class PlanSeeder extends Seeder
                     'Dedicated high-bandwidth relay nodes',
                 ],
                 'is_active' => true,
+                'is_featured' => false,
             ],
         ];
 

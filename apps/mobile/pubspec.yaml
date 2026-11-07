@@ -36,6 +36,9 @@ dependencies:
   hive_ce_flutter: ^2.2.0
   flutter_secure_storage: ^9.2.4
 
+  # In-App Purchases & Billing
+  in_app_purchase: ^3.2.0
+
   # Device & Utilities
   uuid: ^4.5.1
   device_info_plus: ^11.3.0

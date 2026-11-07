@@ -193,13 +193,51 @@
         "responses": { "200": { "description": "Entitlement granted and verified" } }
       }
     },
-    "/subscriptions/status": {
-      "get": {
-        "summary": "Device Subscription Status",
+    "/subscriptions/redeem-code": {
+      "post": {
+        "summary": "Redeem Promo Voucher Code",
         "parameters": [
           { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
         ],
-        "responses": { "200": { "description": "Current device entitlement tier and expiration" } }
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["code"],
+                "properties": {
+                  "code": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Promo code redeemed and entitlement unlocked" } }
+      }
+    },
+    "/subscriptions/status": {
+      "get": {
+        "summary": "Device Subscription Status & Usage Limits",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Current device entitlement tier, usage quotas, and expiration" } }
+      }
+    },
+    "/subscriptions/history": {
+      "get": {
+        "summary": "Device Payment & Transaction History",
+        "parameters": [
+          { "name": "X-Device-UUID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "List of previous subscription activations and orders" } }
+      }
+    },
+    "/subscriptions/google-play/webhook": {
+      "post": {
+        "summary": "Google Play Real-Time Developer Notifications (RTDN)",
+        "responses": { "200": { "description": "Pub/Sub webhook processed" } }
       }
     },
     "/telemetry/session": {

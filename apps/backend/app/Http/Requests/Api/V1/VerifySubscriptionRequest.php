@@ -16,10 +16,11 @@ class VerifySubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_id' => ['required', 'exists:plans,id'],
+            'plan_id' => ['required_without:plan_slug', 'nullable', 'exists:plans,id'],
+            'plan_slug' => ['required_without:plan_id', 'nullable', 'exists:plans,slug'],
             'purchase_token' => ['required', 'string'],
             'order_id' => ['nullable', 'string', 'max:100'],
-            'store' => ['nullable', 'string', 'in:google_play,promo,trial,sandbox'],
+            'store' => ['nullable', 'string', 'in:google_play,promo,trial,sandbox,manual'],
         ];
     }
 

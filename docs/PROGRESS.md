@@ -17,9 +17,9 @@
 | **Phase 3** | **Backend Core (Migrations, Models, Devices, Servers, Configs, Admin MVP, OpenAPI, Tests)** | **Approved** | API tests green, OpenAPI published | *Approved by User (2026-11-06)* |
 | **Phase 4** | **App Integration (Device Handshake, Servers, Configs, .rtp Engine, Offline Cache)** | **Approved** | Real data flows end-to-end | *Approved by User (2026-11-07)* |
 | **Phase 5** | **Native VPN Engine MVP (Kotlin VpnService, Pigeon RPC Bridge, Status & Stats EventChannels, Reconnect, Quick Tile, Flutter VpnConnectionCubit)** | **Approved** | Real tunnel connection verified to test node | *Approved by User (2026-11-07)* |
-| **Phase 6** | **Curated Servers & Config Pools (OpenVPN Server Pool, Latency Probes, Auto-Refresh, Smart Connect, Dynamic Filters)** | **Implemented & Verified Green** | OpenVPN server pool live and verified in app | *Verified Green (50/50 mobile tests, 25/25 backend tests, 0 lint issues)* |
-| **Phase 7** | Subscriptions & Billing (Google Play Billing, Server-side verification, RTDN) | Up Next | Sandbox purchase unlocks premium | - |
-| **Phase 8** | Notifications & Advanced Settings (FCM, Local Alerts, Split Tunneling, Kill-switch) | Not Done | Verified on real physical Android device | - |
+| **Phase 6** | **Curated Servers & Config Pools (OpenVPN Server Pool, Latency Probes, Auto-Refresh, Smart Connect, Dynamic Filters)** | **Approved** | OpenVPN server pool live and verified in app | *Approved by User (2026-11-07)* |
+| **Phase 7** | **Subscriptions & Billing (Google Play Billing, Server-side verification, RTDN, Promo Vouchers, Payment History)** | **Implemented & Verified Green** | Sandbox purchase unlocks premium | *Verified Green (56/56 mobile tests, 30/30 backend tests, 0 lint issues)* |
+| **Phase 8** | Notifications & Advanced Settings (FCM, Local Alerts, Split Tunneling, Kill-switch) | Up Next | Verified on real physical Android device | - |
 | **Phase 9** | Complete Filament Admin Panel (Analytics, Audit Logs, Force Update, Feature Flags) | Not Done | Admin manages full service without DB console | - |
 | **Phase 10** | Extra Native Engines (WireGuard, SSH Tun2socks) | Not Done | Each protocol tested against real server | - |
 | **Phase 11** | Hardening, Performance, Obfuscation, Google Play Store Preparation | Not Done | Release candidate on internal track | - |

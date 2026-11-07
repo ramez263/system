@@ -12,6 +12,7 @@ class Plan extends Model
 
     protected $fillable = [
         'slug',
+        'google_play_product_id',
         'name',
         'description',
         'price_cents',
@@ -19,11 +20,13 @@ class Plan extends Model
         'duration_days',
         'features',
         'is_active',
+        'is_featured',
     ];
 
     protected $casts = [
         'features' => 'array',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
         'price_cents' => 'integer',
         'duration_days' => 'integer',
     ];
@@ -36,6 +39,11 @@ class Plan extends Model
     public function devices(): HasMany
     {
         return $this->hasMany(Device::class);
+    }
+
+    public function promoCodes(): HasMany
+    {
+        return $this->hasMany(PromoCode::class);
     }
 
     public function scopeActive($query)

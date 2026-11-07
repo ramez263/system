@@ -30,7 +30,10 @@ Route::prefix('v1')->group(function () {
     // 4. Subscriptions & Billing
     Route::get('/plans', [SubscriptionController::class, 'plans']);
     Route::post('/subscriptions/verify', [SubscriptionController::class, 'verify']);
+    Route::post('/subscriptions/redeem-code', [SubscriptionController::class, 'redeemPromoCode']);
     Route::get('/subscriptions/status', [SubscriptionController::class, 'status']);
+    Route::get('/subscriptions/history', [SubscriptionController::class, 'history']);
+    Route::post('/subscriptions/google-play/webhook', [\App\Http\Controllers\Api\V1\GooglePlayWebhookController::class, 'handle']);
 
     // 5. Telemetry & Traffic Accounting
     Route::post('/telemetry/session', [TelemetryController::class, 'storeSession']);
