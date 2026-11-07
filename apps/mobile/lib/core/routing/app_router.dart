@@ -1,8 +1,10 @@
 import 'package:go_router/go_router.dart';
+import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/auth/presentation/pages/device_auth_page.dart';
 import '../../features/configurations/presentation/pages/config_editor_page.dart';
 import '../../features/configurations/presentation/pages/config_list_page.dart';
 import '../../features/configurations/presentation/pages/import_config_page.dart';
+import '../../features/dashboard/presentation/pages/changelog_page.dart';
 import '../../features/dashboard/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
@@ -31,6 +33,8 @@ class AppRouter {
   static const String welcomePath = '/welcome';
   static const String deviceAuthPath = '/device-auth';
   static const String homePath = '/home';
+  static const String changelogPath = '/changelog';
+  static const String adminDashboardPath = '/admin-dashboard';
   static const String serversPath = '/servers';
   static const String serverDetailsPath = '/servers/details';
   static const String configsPath = '/configs';
@@ -79,6 +83,11 @@ class AppRouter {
         path: homePath,
         name: 'home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: changelogPath,
+        name: 'changelog',
+        builder: (context, state) => const ChangelogPage(),
       ),
       GoRoute(
         path: serversPath,
@@ -182,6 +191,14 @@ class AppRouter {
         path: aboutPath,
         name: 'about',
         builder: (context, state) => const AboutPage(),
+      ),
+      GoRoute(
+        path: adminDashboardPath,
+        name: 'adminDashboard',
+        builder: (context, state) {
+          final isAuth = state.extra is bool ? state.extra as bool : false;
+          return AdminDashboardPage(initialAuthenticated: isAuth);
+        },
       ),
     ],
   );

@@ -69,6 +69,16 @@ class AppStrings {
       'no_servers_found': 'No servers match your search criteria.',
       'offline_warning': 'No internet connection detected.',
       'error_occurred': 'An unexpected error occurred.',
+      'changelog_title': 'Changelog & Logs',
+      'clear_logs': 'Clear Logs',
+      'logs_cleared': 'Logs cleared successfully.',
+      'virtual_ip': 'Virtual Secure IP',
+      'real_ip': 'Original Public IP',
+      'copied_ip': 'IP address copied to clipboard',
+      'admin_dashboard_title': 'Admin Dashboard',
+      'admin_password_prompt': 'Enter Admin Password',
+      'upload_server': 'Upload Server',
+      'upload_config': 'Upload Configuration',
     },
     'ar': {
       'app_name': 'رامز تنل بلس',
@@ -126,6 +136,16 @@ class AppStrings {
       'no_servers_found': 'لا توجد خوادم مطابقة لمعايير البحث.',
       'offline_warning': 'لا يوجد اتصال بالإنترنت حالياً.',
       'error_occurred': 'حدث خطأ غير متوقع.',
+      'changelog_title': 'سجل التغييرات والسجلات',
+      'clear_logs': 'مسح السجلات',
+      'logs_cleared': 'تم مسح السجلات بنجاح.',
+      'virtual_ip': 'عنوان IP الافتراضي (مشفر)',
+      'real_ip': 'عنوان IP الحقيقي (مكشوف)',
+      'copied_ip': 'تم نسخ عنوان IP إلى الحافظة',
+      'admin_dashboard_title': 'لوحة تحكم المسؤول',
+      'admin_password_prompt': 'أدخل كلمة مرور المسؤول',
+      'upload_server': 'رفع خادم جديد',
+      'upload_config': 'رفع ملف إعداد جديد',
     },
   };
 
@@ -163,6 +183,16 @@ class AppStrings {
   String get advancedSettingsTitle => get('advanced_settings_title');
   String get supportCenterTitle => get('support_center_title');
   String get aboutTitle => get('about_title');
+  String get changelogTitle => get('changelog_title');
+  String get clearLogs => get('clear_logs');
+  String get logsCleared => get('logs_cleared');
+  String get virtualIp => get('virtual_ip');
+  String get realIp => get('real_ip');
+  String get copiedIp => get('copied_ip');
+  String get adminDashboardTitle => get('admin_dashboard_title');
+  String get adminPasswordPrompt => get('admin_password_prompt');
+  String get uploadServer => get('upload_server');
+  String get uploadConfig => get('upload_config');
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppStrings> {

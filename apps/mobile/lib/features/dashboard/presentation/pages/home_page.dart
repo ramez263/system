@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _deviceUuid = 'Loading...';
   String _deviceModel = 'Loading...';
+  String _realIp = '197.38.142.12';
   String _selectedServerName = 'Frankfurt Fast-01 (Auto)';
   String _selectedServerFlag = '🇩🇪';
   Map<String, dynamic>? _selectedConfig;
@@ -33,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> _providerConfigs = const [
     {
       'id': 'vod-router',
-      'name': 'Vodafone for Router',
+      'name': 'رفع فودافون للراوتر',
       'provider': 'Vodafone',
       'device': 'Router',
       'protocol': 'OpenVPN UDP',
@@ -134,6 +136,14 @@ class _HomePageState extends State<HomePage> {
       'ping_ms': 118,
       'load': 28
     },
+    {
+      'name': 'Singapore Hub 01',
+      'flag': '🇸🇬',
+      'city': 'Singapore',
+      'country_name': 'Singapore',
+      'ping_ms': 118,
+      'load': 28
+    },
   ];
 
   @override
@@ -192,9 +202,15 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined),
-                tooltip: strings.get('notifications_title'),
-                onPressed: () => context.push(AppRouter.notificationsPath),
+                icon: const Icon(Icons.history_edu_rounded),
+                tooltip:
+                    isArabic ? 'سجل التغييرات والسجلات' : 'Changelog & Logs',
+                onPressed: () => context.push(AppRouter.changelogPath),
+              ),
+              IconButton(
+                icon: const Icon(Icons.admin_panel_settings_rounded),
+                tooltip: strings.get('admin_title'),
+                onPressed: () => context.push(AppRouter.adminDashboardPath),
               ),
             ],
           ),
@@ -206,7 +222,8 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 1. Sleek Identity & Security Status Bar
-                  _buildIdentityBar(context, theme, strings, isArabic, isConnected, isConnecting),
+                  _buildIdentityBar(context, theme, strings, isArabic,
+                      isConnected, isConnecting),
 
                   const SizedBox(height: 22),
 
@@ -222,7 +239,8 @@ class _HomePageState extends State<HomePage> {
                               : strings.tapToConnect,
                       accentColor: theme.colorScheme.primary,
                       connectedColor: ext?.connectedColor ?? AppColors.success,
-                      connectingColor: ext?.connectingColor ?? AppColors.warning,
+                      connectingColor:
+                          ext?.connectingColor ?? AppColors.warning,
                       onTap: isConnecting
                           ? null
                           : () => context
@@ -243,9 +261,15 @@ class _HomePageState extends State<HomePage> {
                   // 4. Unified Cockpit Connection Chooser (Server & Profile)
                   _buildConnectionChooser(context, strings, isArabic, vpnState),
 
+                  const SizedBox(height: 14),
+
+                  // 5. Real-Time IP Shield Card
+                  _buildIpCard(
+                      context, theme, strings, isArabic, isConnected, vpnState),
+
                   const SizedBox(height: 18),
 
-                  // 5. Real-Time Telemetry Matrix (Download, Upload, Ping)
+                  // 6. Real-Time Telemetry Matrix (Download, Upload, Ping)
                   Row(
                     children: [
                       Expanded(
@@ -272,9 +296,13 @@ class _HomePageState extends State<HomePage> {
                         child: _TelemetryTile(
                           icon: Icons.network_ping_rounded,
                           label: isArabic ? 'استجابة' : 'Ping',
-                          value: isConnected ? '${vpnState.selectedServer?.pingMs ?? 28}' : '--',
+                          value: isConnected
+                              ? '${vpnState.selectedServer?.pingMs ?? 28}'
+                              : '--',
                           unit: 'ms',
-                          color: isConnected ? const Color(0xFF10B981) : theme.colorScheme.outline,
+                          color: isConnected
+                              ? const Color(0xFF10B981)
+                              : theme.colorScheme.outline,
                         ),
                       ),
                     ],
@@ -282,7 +310,7 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 22),
 
-                  // 6. Modern Quick Action Dock (Servers, Configs, Stats, Plans)
+                  // 7. Modern Quick Action Dock (Servers, Configs, Stats, Plans)
                   Text(
                     isArabic ? 'الوصول السريع' : 'Quick Shortcuts',
                     style: theme.textTheme.titleSmall?.copyWith(
@@ -331,12 +359,17 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
 
+                  const SizedBox(height: 18),
+
+                  // 8. Changelog & Connection Logs Quick Access Card
+                  _buildChangelogBanner(context, theme, strings, isArabic),
+
                   const SizedBox(height: 16),
                 ],
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
       },
     );
   }
@@ -449,8 +482,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildConnectionChooser(
-      BuildContext context, AppStrings strings, bool isArabic, VpnConnectionState vpnState) {
+  Widget _buildConnectionChooser(BuildContext context, AppStrings strings,
+      bool isArabic, VpnConnectionState vpnState) {
     final colorScheme = Theme.of(context).colorScheme;
     final cfg = _selectedConfig;
     final displayServerName =
@@ -521,7 +554,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
@@ -588,11 +622,13 @@ class _HomePageState extends State<HomePage> {
                           : colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(13),
                       border: Border.all(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        color:
+                            colorScheme.outlineVariant.withValues(alpha: 0.3),
                       ),
                     ),
                     child: cfg != null
-                        ? Image.asset(cfg['asset'] as String, fit: BoxFit.contain)
+                        ? Image.asset(cfg['asset'] as String,
+                            fit: BoxFit.contain)
                         : Icon(Icons.tune_rounded,
                             color: colorScheme.primary, size: 20),
                   ),
@@ -625,7 +661,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -653,6 +690,371 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  Widget _buildIpCard(
+    BuildContext context,
+    ThemeData theme,
+    AppStrings strings,
+    bool isArabic,
+    bool isConnected,
+    VpnConnectionState vpnState,
+  ) {
+    final colorScheme = theme.colorScheme;
+    final displayIp = isConnected
+        ? (vpnState.selectedServer?.ipAddress ?? '185.220.101.5')
+        : _realIp;
+
+    final locationTag = isConnected
+        ? '${vpnState.selectedServer?.flagEmoji ?? "🇩🇪"} ${vpnState.selectedServer?.countryName ?? (isArabic ? "ألمانيا" : "Germany")}'
+        : (isArabic ? '🇪🇬 مصر (مزودك الأصلي)' : '🇪🇬 Egypt (ISP)');
+
+    final ipType = isConnected
+        ? (isArabic ? 'عنوان IP الافتراضي (مشفر وآمن)' : 'VIRTUAL SECURE IP')
+        : (isArabic ? 'عنوان IP الحقيقي (مكشوف)' : 'ORIGINAL PUBLIC IP');
+
+    final accentColor = isConnected ? AppColors.success : colorScheme.error;
+
+    return RamezGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      borderRadius: 18,
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.28),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              isConnected ? Icons.security_rounded : Icons.public_off_rounded,
+              size: 20,
+              color: accentColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      ipType,
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                        color: accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: accentColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    Text(
+                      displayIp,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        locationTag,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy_rounded, size: 18),
+            tooltip: isArabic ? 'نسخ عنوان IP' : 'Copy IP address',
+            visualDensity: VisualDensity.compact,
+            color: colorScheme.onSurfaceVariant,
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: displayIp));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded,
+                          color: Colors.white, size: 18),
+                      const SizedBox(width: 10),
+                      Text(isArabic
+                          ? 'تم نسخ عنوان IP إلى الحافظة ($displayIp)'
+                          : 'IP copied to clipboard ($displayIp)'),
+                    ],
+                  ),
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChangelogBanner(
+    BuildContext context,
+    ThemeData theme,
+    AppStrings strings,
+    bool isArabic,
+  ) {
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: () => context.push(AppRouter.changelogPath),
+      borderRadius: BorderRadius.circular(18),
+      child: RamezGlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        borderRadius: 18,
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.amber.shade700.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(
+                Icons.history_edu_rounded,
+                size: 22,
+                color: Colors.amber.shade800,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        isArabic
+                            ? 'سجل التغييرات والسجلات'
+                            : 'Changelog & Connection Logs',
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'v1.2.0',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isArabic
+                        ? 'متابعة سجلات الاتصال التشخيصية ومسحها، واستعراض التحديثات'
+                        : 'View or clear connection event logs & app release notes',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAdminPasswordDialog(BuildContext context, bool isArabic) {
+    final passwordCtrl = TextEditingController();
+    bool obscure = true;
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final theme = Theme.of(ctx);
+          final colorScheme = theme.colorScheme;
+
+          return AlertDialog(
+            backgroundColor: colorScheme.surface,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurpleAccent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.admin_panel_settings_rounded,
+                    color: Colors.deepPurpleAccent,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    isArabic ? 'لوحة تحكم المسؤول' : 'Admin Dashboard',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isArabic
+                      ? 'أدخل كلمة مرور الإدارة لرفع وتعديل الخوادم وملفات التكوين:'
+                      : 'Enter administrative password to manage servers & network configs:',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordCtrl,
+                  obscureText: obscure,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: isArabic ? 'كلمة المرور' : 'Password',
+                    hintText: '••••••••',
+                    prefixIcon:
+                        const Icon(Icons.lock_outline_rounded, size: 20),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 20,
+                      ),
+                      onPressed: () => setDialogState(() => obscure = !obscure),
+                    ),
+                    errorText: errorText,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.35),
+                  ),
+                  onSubmitted: (_) {
+                    final pass = passwordCtrl.text.trim();
+                    if (pass == 'admin' ||
+                        pass == 'admin123' ||
+                        pass == '123456') {
+                      Navigator.pop(dialogCtx);
+                      context.push(AppRouter.adminDashboardPath, extra: true);
+                    } else {
+                      HapticFeedback.heavyImpact();
+                      setDialogState(() {
+                        errorText = isArabic
+                            ? 'كلمة المرور غير صحيحة'
+                            : 'Incorrect password';
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: Text(isArabic ? 'إلغاء' : 'Cancel'),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.deepPurpleAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
+                  final pass = passwordCtrl.text.trim();
+                  if (pass == 'admin' ||
+                      pass == 'admin123' ||
+                      pass == '123456') {
+                    Navigator.pop(dialogCtx);
+                    context.push(AppRouter.adminDashboardPath, extra: true);
+                  } else {
+                    HapticFeedback.heavyImpact();
+                    setDialogState(() {
+                      errorText = isArabic
+                          ? 'كلمة المرور غير صحيحة'
+                          : 'Incorrect password';
+                    });
+                  }
+                },
+                child: Text(isArabic ? 'دخول' : 'Access'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   void _showConfigSheet(BuildContext context, bool isArabic) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1180,6 +1582,25 @@ class _HomePageState extends State<HomePage> {
                     Navigator.pop(context);
                     context.push(AppRouter.aboutPath);
                   }, iconColor: Colors.blue),
+                  _drawerItem(
+                    context,
+                    Icons.history_edu_rounded,
+                    isArabic ? 'سجل التغييرات والسجلات' : 'Changelog & Logs',
+                    () {
+                      Navigator.pop(context);
+                      context.push(AppRouter.changelogPath);
+                    },
+                    iconColor: Colors.deepOrange,
+                  ),
+                  _drawerItem(
+                    context,
+                    Icons.notifications_outlined,
+                    strings.advancedSettingsTitle,
+                    () {
+                      context.push(AppRouter.notificationsPath);
+                    },
+                    iconColor: Colors.deepPurpleAccent,
+                  ),
                   const SizedBox(height: 16),
                   _upgradeCard(context, strings, isArabic),
                   const SizedBox(height: 12),
@@ -1429,7 +1850,8 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: (colorScheme.primary == AppColors.primaryBlue || colorScheme.primary == const Color(0xFF1864ab))
+          gradient: (colorScheme.primary == AppColors.primaryBlue ||
+                  colorScheme.primary == const Color(0xFF1864ab))
               ? AppColors.appBarGradient
               : AppColors.getThemeGradient(colorScheme.primary),
           boxShadow: [
@@ -1579,7 +2001,8 @@ class _PowerButton extends StatelessWidget {
         end: Alignment.bottomRight,
       );
     } else {
-      buttonGradient = (accentColor == AppColors.primaryBlue || accentColor == const Color(0xFF1864ab))
+      buttonGradient = (accentColor == AppColors.primaryBlue ||
+              accentColor == const Color(0xFF1864ab))
           ? AppColors.appBarGradient
           : AppColors.getThemeGradient(accentColor);
     }
@@ -1618,7 +2041,8 @@ class _PowerButton extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: activeColor.withValues(alpha: isConnected ? 0.45 : 0.22),
+                  color:
+                      activeColor.withValues(alpha: isConnected ? 0.45 : 0.22),
                   width: 2,
                 ),
                 color: activeColor.withValues(alpha: 0.05),
@@ -1662,7 +2086,8 @@ class _PowerButton extends StatelessWidget {
                   if (isConnected) ...[
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2.5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 2.5),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(12),
@@ -1670,7 +2095,8 @@ class _PowerButton extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.timer_outlined, size: 12, color: Colors.white70),
+                          const Icon(Icons.timer_outlined,
+                              size: 12, color: Colors.white70),
                           const SizedBox(width: 4),
                           Text(
                             durationText,
