@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/server_entity.dart';
 import '../../domain/repositories/server_repository.dart';
 
+enum ServerSortOption { ping, load, name }
+
 abstract class ServerListState extends Equatable {
   const ServerListState();
 
@@ -20,6 +22,7 @@ class ServerListLoaded extends ServerListState {
   final ServerEntity? selectedServer;
   final String? selectedCountry;
   final String searchQuery;
+  final ServerSortOption sortOption;
   final bool isOffline;
 
   const ServerListLoaded({
@@ -28,8 +31,15 @@ class ServerListLoaded extends ServerListState {
     this.selectedServer,
     this.selectedCountry,
     this.searchQuery = '',
+    this.sortOption = ServerSortOption.ping,
     this.isOffline = false,
   });
+
+  List<String> get availableCountries {
+    final codes = servers.map((s) => s.countryCode.toUpperCase()).toSet().toList();
+    codes.sort();
+    return ['ALL', ...codes];
+  }
 
   ServerListLoaded copyWith({
     List<ServerEntity>? servers,
@@ -37,16 +47,18 @@ class ServerListLoaded extends ServerListState {
     ServerEntity? selectedServer,
     String? selectedCountry,
     String? searchQuery,
+    ServerSortOption? sortOption,
     bool? isOffline,
   }) {
     return ServerListLoaded(
       servers: servers ?? this.servers,
       filteredServers: filteredServers ?? this.filteredServers,
       selectedServer: selectedServer ?? this.selectedServer,
-      selectedCountry: selectedCountry != null 
-          ? (selectedCountry == 'ALL' ? null : selectedCountry) 
+      selectedCountry: selectedCountry != null
+          ? (selectedCountry == 'ALL' ? null : selectedCountry)
           : this.selectedCountry,
       searchQuery: searchQuery ?? this.searchQuery,
+      sortOption: sortOption ?? this.sortOption,
       isOffline: isOffline ?? this.isOffline,
     );
   }
@@ -58,6 +70,7 @@ class ServerListLoaded extends ServerListState {
         selectedServer,
         selectedCountry,
         searchQuery,
+        sortOption,
         isOffline,
       ];
 }
@@ -85,16 +98,18 @@ class ServerListCubit extends Cubit<ServerListState> {
     result.fold(
       (failure) => emit(ServerListError(failure.message)),
       (servers) {
-        final currentSelected = state is ServerListLoaded 
-            ? (state as ServerListLoaded).selectedServer 
+        final currentSelected = state is ServerListLoaded
+            ? (state as ServerListLoaded).selectedServer
             : null;
 
         final selected = currentSelected ?? (servers.isNotEmpty ? servers.first : null);
+        final filtered = _applyFilters(servers, null, '', ServerSortOption.ping);
 
         emit(ServerListLoaded(
           servers: servers,
-          filteredServers: servers,
+          filteredServers: filtered,
           selectedServer: selected,
+          sortOption: ServerSortOption.ping,
         ));
       },
     );
@@ -111,8 +126,8 @@ class ServerListCubit extends Cubit<ServerListState> {
     if (state is ServerListLoaded) {
       final current = state as ServerListLoaded;
       final country = (countryCode == null || countryCode == 'ALL') ? null : countryCode;
-      
-      final filtered = _applyFilters(current.servers, country, current.searchQuery);
+
+      final filtered = _applyFilters(current.servers, country, current.searchQuery, current.sortOption);
       emit(current.copyWith(
         selectedCountry: countryCode ?? 'ALL',
         filteredServers: filtered,
@@ -123,9 +138,20 @@ class ServerListCubit extends Cubit<ServerListState> {
   void search(String query) {
     if (state is ServerListLoaded) {
       final current = state as ServerListLoaded;
-      final filtered = _applyFilters(current.servers, current.selectedCountry, query);
+      final filtered = _applyFilters(current.servers, current.selectedCountry, query, current.sortOption);
       emit(current.copyWith(
         searchQuery: query,
+        filteredServers: filtered,
+      ));
+    }
+  }
+
+  void changeSort(ServerSortOption option) {
+    if (state is ServerListLoaded) {
+      final current = state as ServerListLoaded;
+      final filtered = _applyFilters(current.servers, current.selectedCountry, current.searchQuery, option);
+      emit(current.copyWith(
+        sortOption: option,
         filteredServers: filtered,
       ));
     }
@@ -148,8 +174,13 @@ class ServerListCubit extends Cubit<ServerListState> {
     }
   }
 
-  List<ServerEntity> _applyFilters(List<ServerEntity> all, String? country, String query) {
-    var result = all;
+  List<ServerEntity> _applyFilters(
+    List<ServerEntity> all,
+    String? country,
+    String query,
+    ServerSortOption sort,
+  ) {
+    var result = List<ServerEntity>.from(all);
     if (country != null && country.isNotEmpty && country != 'ALL') {
       result = result.where((s) => s.countryCode.toUpperCase() == country.toUpperCase()).toList();
     }
@@ -160,6 +191,18 @@ class ServerListCubit extends Cubit<ServerListState> {
           s.countryName.toLowerCase().contains(term) ||
           (s.city != null && s.city!.toLowerCase().contains(term))).toList();
     }
+
+    result.sort((a, b) {
+      switch (sort) {
+        case ServerSortOption.ping:
+          return a.pingMs.compareTo(b.pingMs);
+        case ServerSortOption.load:
+          return a.currentLoad.compareTo(b.currentLoad);
+        case ServerSortOption.name:
+          return a.name.compareTo(b.name);
+      }
+    });
+
     return result;
   }
 }

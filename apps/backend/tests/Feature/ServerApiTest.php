@@ -120,4 +120,35 @@ class ServerApiTest extends TestCase
         $this->assertNotEmpty($countries);
         $this->assertEquals('FR', $countries[0]['country_code']);
     }
+
+    public function test_can_probe_servers_via_artisan_command(): void
+    {
+        $server = Server::create([
+            'name' => 'Amsterdam Node',
+            'country_code' => 'NL',
+            'country_name' => 'Netherlands',
+            'flag_emoji' => '🇳🇱',
+            'protocol' => 'ovpn',
+            'ip_address' => '194.36.144.50',
+            'port' => 1194,
+            'ping_ms' => 150,
+            'current_load' => 80,
+            'is_active' => true,
+        ]);
+
+        $this->artisan('servers:probe', ['--id' => $server->id])
+            ->assertExitCode(0);
+
+        $server->refresh();
+        $this->assertLessThan(100, $server->ping_ms);
+        $this->assertTrue($server->is_active);
+    }
+
+    public function test_can_sync_public_server_pool_via_artisan_command(): void
+    {
+        $this->artisan('servers:sync-pool')
+            ->assertExitCode(0);
+
+        $this->assertGreaterThan(0, Server::count());
+    }
 }
