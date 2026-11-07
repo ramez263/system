@@ -205,55 +205,12 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Guest Device Identity Banner
-                  RamezGlassCard(
-                    padding: const EdgeInsets.all(14),
-                    onTap: () => context.push(AppRouter.deviceAuthPath),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color:
-                                theme.colorScheme.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(Icons.fingerprint,
-                              size: 26, color: theme.colorScheme.primary),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$_deviceModel • ${strings.guestSession}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 13),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _deviceUuid,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontFamily: 'monospace',
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right,
-                            size: 18, color: Colors.grey),
-                      ],
-                    ),
-                  ),
+                  // 1. Sleek Identity & Security Status Bar
+                  _buildIdentityBar(context, theme, strings, isArabic, isConnected, isConnecting),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 22),
 
-                  // Center Animated Power Button
+                  // 2. Hero Tunnel Power Center with Ambient Aura
                   Center(
                     child: _PowerButton(
                       state: tunnelState,
@@ -274,102 +231,221 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 18),
 
-                  // Status Chip
+                  // 3. Dynamic Status Pill
                   Center(
                     child: RamezStatusChip(state: tunnelState),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Choose Server & Configuration (full-width rows)
+                  // 4. Unified Cockpit Connection Chooser (Server & Profile)
                   _buildConnectionChooser(context, strings, isArabic, vpnState),
 
                   const SizedBox(height: 18),
 
-                  // Live Telemetry Row
+                  // 5. Real-Time Telemetry Matrix (Download, Upload, Ping)
                   Row(
                     children: [
                       Expanded(
                         child: _TelemetryTile(
                           icon: Icons.arrow_downward_rounded,
-                          label: strings.downloadSpeed,
+                          label: isArabic ? 'تحميل' : 'Download',
                           value: downloadSpeed,
                           unit: 'Mbps',
-                          color: Colors.blue,
+                          color: const Color(0xFF0284C7),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _TelemetryTile(
                           icon: Icons.arrow_upward_rounded,
-                          label: strings.uploadSpeed,
+                          label: isArabic ? 'رفع' : 'Upload',
                           value: uploadSpeed,
                           unit: 'Mbps',
-                          color: Colors.purple,
+                          color: const Color(0xFF8B5CF6),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _TelemetryTile(
                           icon: Icons.network_ping_rounded,
-                          label: strings.latency,
-                          value: isConnected ? '28' : '--',
+                          label: isArabic ? 'استجابة' : 'Ping',
+                          value: isConnected ? '${vpnState.selectedServer?.pingMs ?? 28}' : '--',
                           unit: 'ms',
-                          color: Colors.green,
+                          color: isConnected ? const Color(0xFF10B981) : theme.colorScheme.outline,
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 22),
 
-                  // Quick Action Shortcuts Grid
-              Text(
-                isArabic ? 'الوصول السريع' : 'Quick Actions',
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickAction(
-                      icon: Icons.vpn_lock_rounded,
-                      label: strings.configsTitle,
-                      color: Colors.deepPurple,
-                      onTap: () => context.push(AppRouter.configsPath),
+                  // 6. Modern Quick Action Dock (Servers, Configs, Stats, Plans)
+                  Text(
+                    isArabic ? 'الوصول السريع' : 'Quick Shortcuts',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _QuickAction(
-                      icon: Icons.bar_chart_rounded,
-                      label: strings.statisticsTitle,
-                      color: Colors.teal,
-                      onTap: () => context.push(AppRouter.statisticsPath),
-                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickAction(
+                          icon: Icons.dns_rounded,
+                          label: strings.serversTitle,
+                          color: Colors.indigo,
+                          onTap: () => context.push(AppRouter.serversPath),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _QuickAction(
+                          icon: Icons.tune_rounded,
+                          label: strings.configsTitle,
+                          color: Colors.deepPurple,
+                          onTap: () => context.push(AppRouter.configsPath),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _QuickAction(
+                          icon: Icons.insights_rounded,
+                          label: strings.statisticsTitle,
+                          color: Colors.teal,
+                          onTap: () => context.push(AppRouter.statisticsPath),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _QuickAction(
+                          icon: Icons.workspace_premium_rounded,
+                          label: strings.plansTitle,
+                          color: Colors.amber.shade700,
+                          onTap: () => context.push(AppRouter.plansPath),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _QuickAction(
-                      icon: Icons.workspace_premium_rounded,
-                      label: strings.plansTitle,
-                      color: Colors.orange,
-                      onTap: () => context.push(AppRouter.plansPath),
-                    ),
-                  ),
+
+                  const SizedBox(height: 16),
                 ],
-              ),
-
-              const SizedBox(height: 16),
-            ],
           ),
         ),
       ),
     );
       },
+    );
+  }
+
+  Widget _buildIdentityBar(
+    BuildContext context,
+    ThemeData theme,
+    AppStrings strings,
+    bool isArabic,
+    bool isConnected,
+    bool isConnecting,
+  ) {
+    final colorScheme = theme.colorScheme;
+    final shortUuid = _deviceUuid.length > 10
+        ? '${_deviceUuid.substring(0, 4)}...${_deviceUuid.substring(_deviceUuid.length - 4)}'
+        : _deviceUuid;
+
+    final statusColor = isConnected
+        ? AppColors.success
+        : isConnecting
+            ? AppColors.warning
+            : colorScheme.outline;
+
+    final statusText = isConnected
+        ? (isArabic ? 'محمي ومشفّر' : 'Protected')
+        : isConnecting
+            ? (isArabic ? 'جارٍ التأمين...' : 'Securing...')
+            : (isArabic ? 'غير محمي' : 'Unprotected');
+
+    final statusIcon = isConnected
+        ? Icons.shield_rounded
+        : isConnecting
+            ? Icons.sync_rounded
+            : Icons.shield_outlined;
+
+    return RamezGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      borderRadius: 18,
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.phonelink_setup_rounded,
+              size: 20,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _deviceModel,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'ID: $shortUuid',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontFamily: 'monospace',
+                    fontSize: 10.5,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: statusColor.withValues(alpha: 0.28),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(statusIcon, size: 12, color: statusColor),
+                const SizedBox(width: 5),
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -381,123 +457,199 @@ class _HomePageState extends State<HomePage> {
         vpnState.selectedServer?.name ?? _selectedServerName;
     final displayServerFlag =
         vpnState.selectedServer?.flagEmoji ?? _selectedServerFlag;
+    final displayServerPing = vpnState.selectedServer?.pingMs ?? 28;
     final displayConfigName = vpnState.selectedConfig?.name ??
         (cfg != null
             ? cfg['name'] as String
             : (isArabic ? 'اختر تكويناً' : 'Select config'));
+    final displayConfigProto = cfg != null
+        ? (cfg['protocol'] as String? ?? 'OpenVPN')
+        : (isArabic ? 'تلقائي' : 'Auto');
 
-    return Column(
-      children: [
-        _chooserTile(
-          context: context,
-          onTap: () => _showServerSheet(context, strings, isArabic),
-          leading: Container(
-            width: 54,
-            height: 54,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(displayServerFlag,
-                style: const TextStyle(fontSize: 26)),
-          ),
-          title: isArabic ? 'خادم' : 'CHOOSE SERVER',
-          subtitle: displayServerName,
-          accentColor: colorScheme.primary,
-        ),
-        const SizedBox(height: 12),
-        _chooserTile(
-          context: context,
-          onTap: () => _showConfigSheet(context, isArabic),
-          leading: cfg != null
-              ? Container(
-                  width: 54,
-                  height: 54,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child:
-                      Image.asset(cfg['asset'] as String, fit: BoxFit.contain),
-                )
-              : Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(Icons.tune_rounded,
-                      color: Colors.white, size: 26),
-                ),
-          title: isArabic ? 'التكوين' : 'CHOOSE CONFIG',
-          subtitle: displayConfigName,
-          accentColor: const Color(0xFF1E293B),
-        ),
-      ],
-    );
-  }
-
-  Widget _chooserTile({
-    required BuildContext context,
-    required VoidCallback onTap,
-    required Widget leading,
-    required String title,
-    required String subtitle,
-    required Color accentColor,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 78,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: accentColor.withValues(alpha: 0.4)),
-        ),
-        child: Row(
-          children: [
-            leading,
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+    return RamezGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      borderRadius: 20,
+      child: Column(
+        children: [
+          // Server Selection Row
+          InkWell(
+            onTap: () => _showServerSheet(context, strings, isArabic),
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 10,
-                      letterSpacing: 1.4,
-                      fontWeight: FontWeight.w800,
-                      color: colorScheme.onSurfaceVariant,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: Text(
+                      displayServerFlag,
+                      style: const TextStyle(fontSize: 22),
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isArabic ? 'خادم الاتصال' : 'SERVER NODE',
+                          style: TextStyle(
+                            fontSize: 10,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          displayServerName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '$displayServerPing ms',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: colorScheme.onSurfaceVariant),
-          ],
-        ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            child: Divider(
+              height: 1,
+              thickness: 0.8,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+            ),
+          ),
+
+          // Config Profile Selection Row
+          InkWell(
+            onTap: () => _showConfigSheet(context, isArabic),
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    padding: const EdgeInsets.all(7),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cfg != null
+                          ? Colors.white
+                          : colorScheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(13),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: cfg != null
+                        ? Image.asset(cfg['asset'] as String, fit: BoxFit.contain)
+                        : Icon(Icons.tune_rounded,
+                            color: colorScheme.primary, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isArabic ? 'ملف التكوين' : 'CONNECTION PROFILE',
+                          style: TextStyle(
+                            fontSize: 10,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          displayConfigName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      displayConfigProto,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1048,15 +1200,7 @@ class _HomePageState extends State<HomePage> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            primary,
-            primary.withValues(alpha: 0.75),
-            primary.withValues(alpha: 0.45),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppColors.getSplashGradient(primary),
       ),
       child: Stack(
         children: [
@@ -1285,14 +1429,9 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: [
-              colorScheme.primary,
-              colorScheme.primary.withValues(alpha: 0.75)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: (colorScheme.primary == AppColors.primaryBlue || colorScheme.primary == const Color(0xFF1864ab))
+              ? AppColors.appBarGradient
+              : AppColors.getThemeGradient(colorScheme.primary),
           boxShadow: [
             BoxShadow(
               color: colorScheme.primary.withValues(alpha: 0.35),
@@ -1429,13 +1568,13 @@ class _PowerButton extends StatelessWidget {
     final Gradient buttonGradient;
     if (isConnected) {
       buttonGradient = LinearGradient(
-        colors: [connectedColor, connectedColor.withValues(alpha: 0.75)],
+        colors: [connectedColor, const Color(0xFF059669)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
     } else if (isConnecting) {
       buttonGradient = LinearGradient(
-        colors: [connectingColor, connectingColor.withValues(alpha: 0.75)],
+        colors: [connectingColor, const Color(0xFFD97706)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -1447,53 +1586,108 @@ class _PowerButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        width: 210,
-        height: 210,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: buttonGradient,
-          boxShadow: [
-            BoxShadow(
-              color: activeColor.withValues(
-                  alpha: isConnected || isConnecting ? 0.45 : 0.32),
-              blurRadius: isConnected ? 40 : 24,
-              spreadRadius: isConnected ? 6 : 2,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      child: SizedBox(
+        width: 236,
+        height: 236,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Icon(
-              Icons.power_settings_new_rounded,
-              size: 74,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.4,
-                color: Colors.white,
+            // Ambient Breathing Halo Aura
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 600),
+              width: isConnected ? 236 : 220,
+              height: isConnected ? 236 : 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: activeColor.withValues(
+                      alpha: isConnected ? 0.38 : (isConnecting ? 0.32 : 0.22),
+                    ),
+                    blurRadius: isConnected ? 42 : 28,
+                    spreadRadius: isConnected ? 8 : 2,
+                  ),
+                ],
               ),
             ),
-            if (isConnected) ...[
-              const SizedBox(height: 4),
-              Text(
-                durationText,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'monospace',
-                  color: Colors.white.withValues(alpha: 0.85),
+
+            // Outer Frosted Track Ring
+            Container(
+              width: 216,
+              height: 216,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: activeColor.withValues(alpha: isConnected ? 0.45 : 0.22),
+                  width: 2,
                 ),
+                color: activeColor.withValues(alpha: 0.05),
               ),
-            ],
+            ),
+
+            // Tactile Core Power Button
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              width: 188,
+              height: 188,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: buttonGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: activeColor.withValues(alpha: 0.4),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.power_settings_new_rounded,
+                    size: 64,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    label.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.6,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (isConnected) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.timer_outlined, size: 12, color: Colors.white70),
+                          const SizedBox(width: 4),
+                          Text(
+                            durationText,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'monospace',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -1521,48 +1715,55 @@ class _TelemetryTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 14, color: color),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+              Text(
+                unit,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 19,
               fontWeight: FontWeight.w900,
               color: colorScheme.onSurface,
-              letterSpacing: -0.3,
+              letterSpacing: -0.5,
             ),
-          ),
-          Text(
-            unit,
-            style: TextStyle(
-              fontSize: 10,
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(
             label,
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 11,
               color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
+              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1590,23 +1791,25 @@ class _QuickAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              width: 42,
+              height: 42,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.18),
+                color: color.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, size: 24, color: color),
+              child: Icon(icon, size: 22, color: color),
             ),
             const SizedBox(height: 8),
             Text(
