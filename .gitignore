@@ -22,6 +22,7 @@ apps/mobile/.pub-cache/
 apps/mobile/.pub/
 apps/mobile/android/.gradle/
 apps/mobile/android/local.properties
+apps/mobile/android/build/
 apps/mobile/android/app/build/
 apps/mobile/ios/.symlinks/
 apps/mobile/ios/Pods/

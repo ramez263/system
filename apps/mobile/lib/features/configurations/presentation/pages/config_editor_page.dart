@@ -38,6 +38,8 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                 ? 'تم حفظ الإعداد بنجاح'
                 : 'Configuration saved successfully',
           ),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -50,26 +52,27 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isArabic ? 'محرر الإعدادات' : 'Configuration Editor'),
+        centerTitle: false,
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
+            // 1. Basic Parameters
+            _sectionHeader(context, isArabic ? 'البيانات الأساسية' : 'Basic Parameters'),
+            const SizedBox(height: 12),
             RamezGlassCard(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    isArabic ? 'البيانات الأساسية' : 'Basic Parameters',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: isArabic ? 'اسم الملف' : 'Profile Name',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.label),
                     ),
                     validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                   ),
@@ -78,7 +81,8 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                     initialValue: _protocol,
                     decoration: InputDecoration(
                       labelText: isArabic ? 'نوع البروتوكول' : 'Protocol Family',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.vpn_key),
                     ),
                     items: const [
                       DropdownMenuItem(value: 'OpenVPN', child: Text('OpenVPN (OVPN)')),
@@ -92,16 +96,17 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                 ],
               ),
             ),
+
             const SizedBox(height: 16),
+
+            // 2. Server & Network Details
+            _sectionHeader(context, isArabic ? 'عنوان الخادم والشبكة' : 'Server & Network Details'),
+            const SizedBox(height: 12),
             RamezGlassCard(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    isArabic ? 'عنوان الخادم والشبكة' : 'Server & Network Details',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -110,7 +115,8 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                           controller: _serverController,
                           decoration: InputDecoration(
                             labelText: isArabic ? 'عنوان الخادم / Host' : 'Server Host / IP',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            prefixIcon: const Icon(Icons.public),
                           ),
                           validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                         ),
@@ -123,7 +129,8 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: isArabic ? 'المنفذ' : 'Port',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            prefixIcon: const Icon(Icons.numbers),
                           ),
                           validator: (v) => v == null || v.isEmpty ? 'Port' : null,
                         ),
@@ -135,7 +142,8 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                     controller: _sniController,
                     decoration: InputDecoration(
                       labelText: 'SNI (Server Name Indication)',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.security),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -143,21 +151,36 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
                     controller: _dnsController,
                     decoration: InputDecoration(
                       labelText: isArabic ? 'خوادم DNS' : 'Custom DNS',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.dns),
                     ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 28),
-            RamezButton(
-              label: isArabic ? 'حفظ وتطبيق الإعداد' : 'Save Configuration',
-              onPressed: _saveConfig,
-              icon: Icons.save,
+
+            // 3. Save action
+            SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: RamezButton(
+                label: isArabic ? 'حفظ وتطبيق الإعداد' : 'Save Configuration',
+                icon: Icons.save,
+                onPressed: _saveConfig,
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _sectionHeader(BuildContext context, String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.2),
     );
   }
 }

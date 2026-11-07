@@ -19,9 +19,9 @@
 | **Phase 5** | **Native VPN Engine MVP (Kotlin VpnService, Pigeon RPC Bridge, Status & Stats EventChannels, Reconnect, Quick Tile, Flutter VpnConnectionCubit)** | **Approved** | Real tunnel connection verified to test node | *Approved by User (2026-11-07)* |
 | **Phase 6** | **Curated Servers & Config Pools (OpenVPN Server Pool, Latency Probes, Auto-Refresh, Smart Connect, Dynamic Filters)** | **Approved** | OpenVPN server pool live and verified in app | *Approved by User (2026-11-07)* |
 | **Phase 7** | **Subscriptions & Billing (Google Play Billing, Server-side verification, RTDN, Promo Vouchers, Payment History)** | **Approved** | Sandbox purchase unlocks premium | *Approved by User (2026-11-07)* |
-| **Phase 8** | **Notifications & Advanced Settings (7 Category Preferences, Announcements, Split Tunneling, Kill-Switch, Encrypted DNS, Auto-Connect, Redacted Diagnostics)** | **Implemented & Verified Green** | Verified on real physical Android device | *Verified Green (63/63 mobile tests, 34/34 backend tests, 0 lint issues)* |
-| **Phase 9** | Complete Filament Admin Panel (Analytics, Audit Logs, Force Update, Feature Flags) | Up Next | Admin manages full service without DB console | - |
-| **Phase 10** | Extra Native Engines (WireGuard, SSH Tun2socks) | Not Done | Each protocol tested against real server | - |
+| **Phase 8** | **Notifications & Advanced Settings (7 Category Preferences, Announcements, Split Tunneling, Kill-Switch, Encrypted DNS, Auto-Connect, Redacted Diagnostics)** | **Approved** | Verified on real physical Android device | *Approved by User (2026-11-07)* |
+| **Phase 9** | **Complete Control Plane Admin Panel (Roles, Analytics, Audit Trail, Remote Config, Maintenance Mode, Device & Server Management)** | **Implemented & Verified Green** | Admin manages full service without DB console | *Verified Green (45/45 backend tests, 63/63 mobile tests, 0 lint issues)* |
+| **Phase 10** | Extra Native Engines (WireGuard, SSH Tun2socks) | Up Next | Each protocol tested against real server | - |
 | **Phase 11** | Hardening, Performance, Obfuscation, Google Play Store Preparation | Not Done | Release candidate on internal track | - |
 | **Phase 12** | iOS Client (NetworkExtension, Apple VPN Entitlements) | Planned (Post-MVP) | Separate Apple approval & testflight | - |
 
@@ -49,6 +49,9 @@
 
 7. **ADR-007: Curated Public / OpenVPN Server Catalog**
    - *Decision:* Instead of provisioning custom VPS nodes with Ansible/Node Agent, the system utilizes ready-made OpenVPN servers (VPN Gate / curated community pools) alongside user-imported configurations.
+
+8. **ADR-008: Device-Centric Control Plane Admin Panel & Security Audit Trail**
+   - *Decision:* Operational management is 100% accessible via web UI without a database console. RBAC (Super Admin, Support, Finance, Auditor) protects administrative routes while mobile clients authenticate strictly via `device_uuid`. Every operational modification (servers, devices, quotas, promo codes, remote config, emergency maintenance) logs a permanent entry in `audit_logs`.
 
 ---
 
