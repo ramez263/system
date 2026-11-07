@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
 class ImportConfigPage extends StatelessWidget {
@@ -122,10 +123,7 @@ class ImportConfigPage extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'استيراد ملف إعداد' : 'Import Configuration'),
-        centerTitle: false,
-      ),
+      appBar: const ModernAppBar(title: 'Import Configuration', subtitle: 'OVPN, VLESS, VMess, Trojan'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [

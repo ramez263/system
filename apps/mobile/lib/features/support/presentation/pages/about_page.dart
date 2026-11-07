@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
 class AboutPage extends StatelessWidget {
@@ -10,9 +11,7 @@ class AboutPage extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'عن التطبيق' : 'About Ramez Tunnel Plus'),
-      ),
+      appBar: const ModernAppBar(title: 'About Ramez Tunnel Plus', subtitle: 'Premium VPN & tunneling'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

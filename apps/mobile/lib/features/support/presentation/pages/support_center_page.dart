@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/app_router.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
@@ -60,9 +61,7 @@ class SupportCenterPage extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'مركز الدعم الفني' : 'Support Center'),
-      ),
+      appBar: const ModernAppBar(title: 'Support Center', subtitle: 'Help & assistance'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

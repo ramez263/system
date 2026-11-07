@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
@@ -43,11 +44,7 @@ class ConnectionDetailsPage extends StatelessWidget {
         .toUpperCase();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic
-            ? 'تفاصيل الجلسة النشطة'
-            : 'Active Connection Details'),
-      ),
+      appBar: ModernAppBar(title: 'Active Connection Details', subtitle: 'Session status & telemetry'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

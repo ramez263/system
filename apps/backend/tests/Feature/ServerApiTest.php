@@ -151,4 +151,45 @@ class ServerApiTest extends TestCase
 
         $this->assertGreaterThan(0, Server::count());
     }
+
+    public function test_can_fetch_and_filter_wireguard_and_ssh_servers(): void
+    {
+        Server::create([
+            'name' => 'Frankfurt WG',
+            'country_code' => 'DE',
+            'country_name' => 'Germany',
+            'flag_emoji' => '🇩🇪',
+            'protocol' => 'wireguard',
+            'ip_address' => '1.2.3.4',
+            'port' => 51820,
+            'is_active' => true,
+            'ovpn_config' => "[Interface]\nPrivateKey = abc=\nAddress = 10.0.0.2/32",
+        ]);
+
+        Server::create([
+            'name' => 'London SSH',
+            'country_code' => 'GB',
+            'country_name' => 'United Kingdom',
+            'flag_emoji' => '🇬🇧',
+            'protocol' => 'ssh',
+            'ip_address' => '5.6.7.8',
+            'port' => 22,
+            'is_active' => true,
+            'ovpn_config' => "[SSH]\nhost = 5.6.7.8\nport = 22",
+        ]);
+
+        // Filter by wireguard
+        $wgRes = $this->getJson('/api/v1/servers?protocol=wireguard');
+        $wgRes->assertStatus(200);
+        $wgData = $wgRes->json('data');
+        $this->assertNotEmpty($wgData);
+        $this->assertEquals('wireguard', $wgData[0]['protocol']);
+
+        // Filter by ssh
+        $sshRes = $this->getJson('/api/v1/servers?protocol=ssh');
+        $sshRes->assertStatus(200);
+        $sshData = $sshRes->json('data');
+        $this->assertNotEmpty($sshData);
+        $this->assertEquals('ssh', $sshData[0]['protocol']);
+    }
 }

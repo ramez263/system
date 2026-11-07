@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
@@ -50,10 +51,7 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'محرر الإعدادات' : 'Configuration Editor'),
-        centerTitle: false,
-      ),
+      appBar: const ModernAppBar(title: 'Configuration Editor', subtitle: 'Create or edit tunnel profiles'),
       body: Form(
         key: _formKey,
         child: ListView(

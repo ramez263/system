@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -94,10 +95,7 @@ class AppSettingsPage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإعدادات العامة' : 'App Settings'),
-        centerTitle: false,
-      ),
+      appBar: const ModernAppBar(title: 'App Settings', subtitle: 'Connection automation & diagnostics'),
       body: BlocConsumer<SettingsCubit, SettingsState>(
         listener: (context, state) {
           if (state is SettingsLoaded && state.feedbackMessage != null) {
@@ -347,9 +345,7 @@ class AppSettingsPage extends StatelessWidget {
 
   Widget _buildStaticFallback(BuildContext context, bool isArabic) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإعدادات العامة' : 'App Settings'),
-      ),
+      appBar: const ModernAppBar(title: 'App Settings', subtitle: 'Connection automation & diagnostics'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

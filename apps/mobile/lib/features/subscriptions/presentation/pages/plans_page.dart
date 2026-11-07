@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../../domain/entities/subscription_plan.dart';
@@ -113,12 +114,13 @@ class _PlansPageState extends State<PlansPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(isArabic ? 'خطط الترقية والاشتراك' : 'Subscription Plans'),
+          appBar: ModernAppBar(
+            title: 'Subscription Plans',
+            subtitle: 'Choose your premium tier',
             actions: [
               IconButton(
                 icon: const Icon(Icons.confirmation_number_outlined),
-                tooltip: isArabic ? 'كود القسيمة' : 'Promo Code',
+                tooltip: 'Promo Code',
                 onPressed: () => _showPromoCodeDialog(context, isArabic),
               ),
               IconButton(
@@ -446,9 +448,7 @@ class _PlansPageState extends State<PlansPage> {
 
   Widget _buildStaticFallback(BuildContext context, ThemeData theme, bool isArabic) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'خطط الترقية والاشتراك' : 'Subscription Plans'),
-      ),
+      appBar: const ModernAppBar(title: 'Subscription Plans', subtitle: 'Choose your premium tier'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

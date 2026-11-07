@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/device_identity_service.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
@@ -38,9 +39,7 @@ class _DeviceAuthPageState extends State<DeviceAuthPage> {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'هوية الجهاز الموثوقة' : 'Device Authentication'),
-      ),
+      appBar: const ModernAppBar(title: 'Device Authentication', subtitle: 'Trusted device identity'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(

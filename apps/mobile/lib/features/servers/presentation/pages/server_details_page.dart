@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../../../vpn_connection/presentation/cubit/vpn_connection_cubit.dart';
@@ -49,9 +50,7 @@ class ServerDetailsPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'تفاصيل الخادم' : 'Server Details'),
-      ),
+      appBar: const ModernAppBar(title: 'Server Details', subtitle: 'Connection configuration'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

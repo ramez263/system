@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_empty_state.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/subscription_cubit.dart';
@@ -18,9 +19,7 @@ class PaymentHistoryPage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'سجل المدفوعات والاشتراك' : 'Payment History'),
-      ),
+      appBar: const ModernAppBar(title: 'Payment History', subtitle: 'Transaction records'),
       body: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         builder: (context, state) {
           if (state is SubscriptionLoading) {
@@ -127,9 +126,7 @@ class PaymentHistoryPage extends StatelessWidget {
 
   Widget _buildStaticFallback(BuildContext context, bool isArabic) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'سجل المدفوعات والاشتراك' : 'Payment History'),
-      ),
+      appBar: const ModernAppBar(title: 'Payment History', subtitle: 'Transaction records'),
       body: RamezEmptyState(
         icon: Icons.receipt_long_outlined,
         title: isArabic ? 'لا توجد فواتير سابقة' : 'No Payment Records',

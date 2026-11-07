@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
 class DevicesPage extends StatelessWidget {
@@ -25,9 +26,7 @@ class DevicesPage extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الأجهزة النشطة' : 'Active Devices'),
-      ),
+      appBar: const ModernAppBar(title: 'Active Devices', subtitle: 'Trusted devices list'),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _mockDevices.length,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/app_router.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 
 class ConfigListPage extends StatefulWidget {
@@ -58,9 +59,9 @@ class _ConfigListPageState extends State<ConfigListPage> {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'ملفات التكوين' : 'Tunnel Configs'),
-        centerTitle: false,
+      appBar: ModernAppBar(
+        title: isArabic ? 'ملفات التكوين' : 'Tunnel Configs',
+        subtitle: 'Manage your VPN connection profiles',
         actions: [
           InkWell(
             borderRadius: BorderRadius.circular(12),

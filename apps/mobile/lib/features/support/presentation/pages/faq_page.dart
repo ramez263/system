@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
 class FaqPage extends StatelessWidget {
@@ -36,9 +37,7 @@ class FaqPage extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الأسئلة الشائعة' : 'FAQ & Troubleshooting'),
-      ),
+      appBar: const ModernAppBar(title: 'FAQ & Troubleshooting', subtitle: 'Common questions & answers'),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _faqs.length,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
@@ -18,12 +19,13 @@ class NotificationsPage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإشعارات والتنبيهات' : 'Notifications'),
+      appBar: ModernAppBar(
+        title: 'Notifications',
+        subtitle: 'Real-time alerts & updates',
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: isArabic ? 'تحديث' : 'Refresh',
+            tooltip: 'Refresh',
             onPressed: () => context.read<NotificationCubit>().loadNotifications(),
           ),
         ],
@@ -261,9 +263,7 @@ class NotificationsPage extends StatelessWidget {
 
   Widget _buildStaticFallback(BuildContext context, ThemeData theme, bool isArabic) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإشعارات والتنبيهات' : 'Notifications'),
-      ),
+      appBar: ModernAppBar(title: 'Notifications', subtitle: 'Real-time alerts & updates'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

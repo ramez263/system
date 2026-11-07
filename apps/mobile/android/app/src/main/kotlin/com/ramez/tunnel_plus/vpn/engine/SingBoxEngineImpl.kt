@@ -20,6 +20,7 @@ class SingBoxEngineImpl(private val context: Context) : VpnEngine {
         val intent = Intent(context, RamezVpnService::class.java).apply {
             action = RamezVpnService.ACTION_CONNECT
             putExtra(RamezVpnService.EXTRA_PROFILE_NAME, profile.name)
+            putExtra(RamezVpnService.EXTRA_PROTOCOL, profile.protocol)
             putExtra(RamezVpnService.EXTRA_SERVER_HOST, profile.serverAddress)
             putExtra(RamezVpnService.EXTRA_SERVER_PORT, profile.serverPort.toInt())
             putStringArrayListExtra(RamezVpnService.EXTRA_DNS_SERVERS, ArrayList(profile.dnsServers))

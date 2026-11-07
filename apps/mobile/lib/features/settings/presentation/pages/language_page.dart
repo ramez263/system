@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/locale_cubit.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 
 class LanguagePage extends StatelessWidget {
@@ -14,10 +15,7 @@ class LanguagePage extends StatelessWidget {
     final isArabic = currentLocale.languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'اختيار اللغة' : 'Language'),
-        centerTitle: false,
-      ),
+      appBar: const ModernAppBar(title: 'Language', subtitle: 'Interface direction adapts instantly'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [

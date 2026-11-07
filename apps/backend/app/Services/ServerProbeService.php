@@ -35,9 +35,12 @@ class ServerProbeService
         // Socket probe with short timeout
         $errno = 0;
         $errstr = '';
-        $timeout = 1.0; // 1 second timeout
+        $targetHost = $server->ip_address;
+        if (in_array(strtolower($server->protocol), ['wireguard', 'wg'], true)) {
+            $targetHost = 'udp://' . $targetHost;
+        }
 
-        $socket = @fsockopen($server->ip_address, $server->port, $errno, $errstr, $timeout);
+        $socket = @fsockopen($targetHost, $server->port, $errno, $errstr, $timeout);
 
         if ($socket) {
             $latencyMs = (int) round((microtime(true) - $startTime) * 1000);

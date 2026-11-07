@@ -7,6 +7,7 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/services/device_identity_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_extension.dart';
+import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../../../../core/widgets/ramez_status_chip.dart';
 import '../../../configurations/domain/entities/configuration_entity.dart';
@@ -22,6 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _deviceUuid = 'Loading...';
   String _deviceModel = 'Loading...';
   String _selectedServerName = 'Frankfurt Fast-01 (Auto)';
@@ -179,18 +181,26 @@ class _HomePageState extends State<HomePage> {
         final uploadSpeed = isConnected ? vpnState.uploadSpeedMbps : '0.0';
 
         return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset('assets/images/logo.png', height: 28, width: 28),
-                const SizedBox(width: 10),
-                Text(
-                  strings.appName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, letterSpacing: -0.3),
+          key: _scaffoldKey,
+          appBar: ModernAppBar(
+            title: strings.appName,
+            showBack: false,
+            leadingWidget: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+              child: Container(
+                margin: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ],
+                child: const Icon(
+                  Icons.menu,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
             ),
             actions: [
               IconButton(

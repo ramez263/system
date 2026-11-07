@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunnel_plus/core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -237,10 +238,7 @@ class AdvancedNetworkSettingsPage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإعدادات المتقدمة' : 'Advanced Network'),
-        centerTitle: false,
-      ),
+      appBar: const ModernAppBar(title: 'Advanced Network', subtitle: 'Kill switch, DNS & split tunneling'),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           if (state is SettingsLoading) {
@@ -513,9 +511,7 @@ class AdvancedNetworkSettingsPage extends StatelessWidget {
 
   Widget _buildStaticFallback(BuildContext context, ThemeData theme, bool isArabic) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'الإعدادات المتقدمة' : 'Advanced Network'),
-      ),
+      appBar: const ModernAppBar(title: 'Advanced Network', subtitle: 'Kill switch, DNS & split tunneling'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

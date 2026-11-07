@@ -49,8 +49,15 @@ class RamezVpnService : VpnService() {
         const val CHANNEL_ID = "ramez_tunnel_vpn_channel"
 
         const val EXTRA_PROFILE_NAME = "extra_profile_name"
+        const val EXTRA_PROTOCOL = "extra_protocol"
         const val EXTRA_SERVER_HOST = "extra_server_host"
         const val EXTRA_SERVER_PORT = "extra_server_port"
+        const val EXTRA_MTU = "extra_mtu"
+        const val EXTRA_INTERFACE_ADDRESS = "extra_interface_address"
+        const val EXTRA_ALLOWED_IPS = "extra_allowed_ips"
+        const val EXTRA_SSH_USERNAME = "extra_ssh_username"
+        const val EXTRA_SSH_PAYLOAD = "extra_ssh_payload"
+        const val EXTRA_SSH_SNI = "extra_ssh_sni"
         const val EXTRA_DNS_SERVERS = "extra_dns_servers"
         const val EXTRA_BYPASS_LAN = "extra_bypass_lan"
         const val EXTRA_EXCLUDED_APPS = "extra_excluded_apps"
@@ -77,13 +84,18 @@ class RamezVpnService : VpnService() {
         when (intent?.action) {
             ACTION_CONNECT -> {
                 val profileName = intent.getStringExtra(EXTRA_PROFILE_NAME) ?: "Ramez Secure Node"
+                val protocol = intent.getStringExtra(EXTRA_PROTOCOL) ?: "ovpn"
                 val serverHost = intent.getStringExtra(EXTRA_SERVER_HOST) ?: "185.120.40.12"
                 val serverPort = intent.getIntExtra(EXTRA_SERVER_PORT, 1194)
+                val defaultMtu = if (protocol.lowercase() == "wireguard" || protocol.lowercase() == "wg") 1420 else 1500
+                val mtu = intent.getIntExtra(EXTRA_MTU, defaultMtu)
+                val ifaceAddress = intent.getStringExtra(EXTRA_INTERFACE_ADDRESS) ?: if (protocol == "wireguard") "10.0.0.2/32" else "10.8.0.2/24"
+                val allowedIps = intent.getStringArrayListExtra(EXTRA_ALLOWED_IPS) ?: arrayListOf("0.0.0.0/0")
                 val dnsList = intent.getStringArrayListExtra(EXTRA_DNS_SERVERS) ?: arrayListOf("1.1.1.1", "1.0.0.1")
                 val bypassLan = intent.getBooleanExtra(EXTRA_BYPASS_LAN, true)
                 val excludedApps = intent.getStringArrayListExtra(EXTRA_EXCLUDED_APPS) ?: arrayListOf()
 
-                startTunnel(profileName, serverHost, serverPort, dnsList, bypassLan, excludedApps)
+                startTunnel(profileName, protocol, serverHost, serverPort, mtu, ifaceAddress, allowedIps, dnsList, bypassLan, excludedApps)
             }
             ACTION_DISCONNECT -> {
                 stopTunnel()
@@ -94,8 +106,12 @@ class RamezVpnService : VpnService() {
 
     private fun startTunnel(
         name: String,
+        protocol: String,
         host: String,
         port: Int,
+        mtu: Int,
+        ifaceAddress: String,
+        allowedIps: List<String>,
         dnsServers: List<String>,
         bypassLan: Boolean,
         excludedApps: List<String>
@@ -104,7 +120,14 @@ class RamezVpnService : VpnService() {
         _activeServer.value = name
         _currentStatus.value = ConnectionStatus.PREPARING
 
-        val notification = buildNotification(name, "Establishing secure tunnel...")
+        val protoLabel = when (protocol.lowercase()) {
+            "wireguard", "wg" -> "WireGuard"
+            "ssh", "direct_ssh", "ssl_ssh" -> "SSH Tunnel"
+            "vless", "vmess", "trojan" -> "sing-box (${protocol.uppercase()})"
+            else -> "OpenVPN"
+        }
+
+        val notification = buildNotification(name, "Establishing secure $protoLabel tunnel...")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
@@ -114,14 +137,28 @@ class RamezVpnService : VpnService() {
         serviceScope.launch {
             try {
                 _currentStatus.value = ConnectionStatus.CONNECTING
-                updateNotification(name, "Connecting to $host:$port...")
+                updateNotification(name, "Connecting to $host:$port ($protoLabel)...")
 
                 // Setup TUN Builder
                 val builder = Builder()
-                    .setSession(name)
-                    .setMtu(1500)
-                    .addAddress("10.8.0.2", 24)
-                    .addRoute("0.0.0.0", 0)
+                    .setSession("$name [$protoLabel]")
+                    .setMtu(mtu)
+
+                // Assign interface IP
+                val addrParts = ifaceAddress.split("/")
+                val ipStr = addrParts[0]
+                val prefix = if (addrParts.size > 1) addrParts[1].toIntOrNull() ?: 24 else 24
+                builder.addAddress(ipStr, prefix)
+
+                // Add allowed IP routes
+                for (route in allowedIps) {
+                    val rParts = route.split("/")
+                    val rIp = rParts[0]
+                    val rPrefix = if (rParts.size > 1) rParts[1].toIntOrNull() ?: 0 else 0
+                    try {
+                        builder.addRoute(rIp, rPrefix)
+                    } catch (_: Exception) {}
+                }
 
                 // DNS servers
                 for (dns in dnsServers) {

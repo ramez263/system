@@ -249,7 +249,179 @@ class RtpConfigEngine {
     );
   }
 
-  /// Automatically parses any format: RTP JSON, OVPN text, or URI link
+  /// Parses standard WireGuard (.conf) configuration file into a RtpProfile
+  static RtpProfile parseWireGuard(String confContent, {String? defaultName}) {
+    if (confContent.length > maxConfigSizeBytes) {
+      throw const ConfigParsingFailure('WireGuard configuration file exceeds 1 MB limit.');
+    }
+
+    String privateKey = '';
+    String address = '10.0.0.2/32';
+    List<String> dnsList = ['1.1.1.1', '1.0.0.1'];
+    int mtu = 1420;
+    String peerPublicKey = '';
+    String endpointHost = '127.0.0.1';
+    int endpointPort = 51820;
+    List<String> allowedIps = ['0.0.0.0/0'];
+    int keepalive = 25;
+
+    final lines = LineSplitter.split(confContent);
+    for (final rawLine in lines) {
+      final line = rawLine.trim();
+      if (line.isEmpty || line.startsWith('#')) continue;
+
+      final eqIdx = line.indexOf('=');
+      if (eqIdx == -1) continue;
+
+      final key = line.substring(0, eqIdx).trim().toLowerCase();
+      final val = line.substring(eqIdx + 1).trim();
+
+      switch (key) {
+        case 'privatekey':
+          privateKey = val;
+          break;
+        case 'address':
+          address = val;
+          break;
+        case 'dns':
+          dnsList = val.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          break;
+        case 'mtu':
+          mtu = int.tryParse(val) ?? 1420;
+          break;
+        case 'publickey':
+          peerPublicKey = val;
+          break;
+        case 'endpoint':
+          final epParts = val.split(':');
+          endpointHost = epParts[0].trim();
+          if (epParts.length > 1) {
+            endpointPort = int.tryParse(epParts[1].trim()) ?? 51820;
+          }
+          break;
+        case 'allowedips':
+          allowedIps = val.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          break;
+        case 'persistentkeepalive':
+          keepalive = int.tryParse(val) ?? 25;
+          break;
+      }
+    }
+
+    if (privateKey.isEmpty && peerPublicKey.isEmpty && !confContent.toLowerCase().contains('[interface]')) {
+      throw const ConfigParsingFailure('Invalid WireGuard configuration: Missing [Interface] or key pairs.');
+    }
+
+    final name = defaultName ?? 'WireGuard ($endpointHost:$endpointPort)';
+
+    return RtpProfile(
+      id: const Uuid().v4(),
+      name: name,
+      protocol: 'wireguard',
+      serverAddress: endpointHost,
+      serverPort: endpointPort,
+      transport: 'udp',
+      credentials: {
+        'privateKey': privateKey,
+        'address': address,
+        'publicKey': peerPublicKey,
+        'allowedIps': allowedIps,
+        'mtu': mtu,
+        'persistentKeepalive': keepalive,
+      },
+      dnsServers: dnsList.isNotEmpty ? dnsList : const ['1.1.1.1', '1.0.0.1'],
+      rawPayload: confContent,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Parses SSH Tunnel configuration or SSH URI
+  static RtpProfile parseSsh(String input, {String? defaultName}) {
+    if (input.length > maxConfigSizeBytes) {
+      throw const ConfigParsingFailure('SSH configuration exceeds 1 MB limit.');
+    }
+
+    String host = '127.0.0.1';
+    int port = 22;
+    String username = '';
+    String password = '';
+    String payload = '';
+    String sni = '';
+
+    final trimmed = input.trim();
+    if (trimmed.startsWith('ssh://')) {
+      final uri = Uri.tryParse(trimmed);
+      if (uri != null) {
+        host = uri.host.isNotEmpty ? uri.host : host;
+        port = uri.hasPort ? uri.port : 22;
+        if (uri.userInfo.isNotEmpty) {
+          final uParts = uri.userInfo.split(':');
+          username = uParts[0];
+          if (uParts.length > 1) password = uParts[1];
+        }
+        payload = uri.queryParameters['payload'] ?? '';
+        sni = uri.queryParameters['sni'] ?? '';
+      }
+    } else {
+      final lines = LineSplitter.split(trimmed);
+      for (final rawLine in lines) {
+        final line = rawLine.trim();
+        if (line.isEmpty || line.startsWith('#') || line.startsWith(';')) continue;
+
+        final eqIdx = line.indexOf('=');
+        if (eqIdx == -1) continue;
+
+        final key = line.substring(0, eqIdx).trim().toLowerCase();
+        final val = line.substring(eqIdx + 1).trim();
+
+        switch (key) {
+          case 'host':
+          case 'server':
+            host = val;
+            break;
+          case 'port':
+            port = int.tryParse(val) ?? 22;
+            break;
+          case 'user':
+          case 'username':
+            username = val;
+            break;
+          case 'pass':
+          case 'password':
+            password = val;
+            break;
+          case 'payload':
+            payload = val;
+            break;
+          case 'sni':
+            sni = val;
+            break;
+        }
+      }
+    }
+
+    final name = defaultName ?? 'SSH Tunnel ($host:$port)';
+
+    return RtpProfile(
+      id: const Uuid().v4(),
+      name: name,
+      protocol: 'ssh',
+      serverAddress: host,
+      serverPort: port,
+      transport: 'tcp',
+      credentials: {
+        'username': username,
+        'password': password,
+        'payload': payload,
+      },
+      sni: sni.isNotEmpty ? sni : null,
+      hostHeader: payload.isNotEmpty ? payload : null,
+      rawPayload: input,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Automatically parses any format: RTP JSON, OVPN text, WireGuard conf, SSH, or URI link
   static RtpProfile parseAny(String input, {String? currentDeviceUuid, String? defaultName}) {
     final trimmed = input.trim();
     if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
@@ -259,6 +431,10 @@ class RtpConfigEngine {
                trimmed.startsWith('trojan://') || 
                trimmed.startsWith('ss://')) {
       return parseProxyUri(trimmed);
+    } else if (trimmed.startsWith('ssh://') || trimmed.contains('[SSH]')) {
+      return parseSsh(trimmed, defaultName: defaultName);
+    } else if (trimmed.contains('[Interface]') && trimmed.contains('[Peer]')) {
+      return parseWireGuard(trimmed, defaultName: defaultName);
     } else {
       // Default to OpenVPN profile
       return parseOvpn(trimmed, defaultName: defaultName);

@@ -158,12 +158,84 @@ verb 3
       expect(profile.sni, 'sni.example.com');
     });
 
-    test('parseAny automatically distinguishes between JSON, URI, and OVPN', () {
+    test('Parses WireGuard (.conf) configuration file correctly', () {
+      const wgConf = '''
+[Interface]
+PrivateKey = aGZsd2pzb2RmamtzZGtmanNka2Zqc2RramZzZGtqZnM=
+Address = 10.0.0.5/32
+DNS = 1.1.1.1, 8.8.8.8
+MTU = 1420
+
+[Peer]
+PublicKey = cGtqZnNka2pmc2RramZzZGtmc2RramZzZGtmamtkc2Y=
+Endpoint = 195.201.10.25:51820
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25
+''';
+
+      final profile = RtpConfigEngine.parseWireGuard(wgConf, defaultName: 'Zurich WG Fast');
+
+      expect(profile.name, 'Zurich WG Fast');
+      expect(profile.protocol, 'wireguard');
+      expect(profile.serverAddress, '195.201.10.25');
+      expect(profile.serverPort, 51820);
+      expect(profile.transport, 'udp');
+      expect(profile.credentials['privateKey'], 'aGZsd2pzb2RmamtzZGtmanNka2Zqc2RramZzZGtqZnM=');
+      expect(profile.credentials['address'], '10.0.0.5/32');
+      expect(profile.credentials['mtu'], 1420);
+      expect(profile.credentials['persistentKeepalive'], 25);
+      expect(profile.dnsServers, contains('1.1.1.1'));
+    });
+
+    test('Parses SSH Tunnel configuration and custom HTTP injection headers', () {
+      const sshConf = '''
+[SSH]
+host = 156.204.18.22
+port = 22
+username = ramez_vip
+password = secret_cairo_pass
+sni = m.we.com.eg
+payload = CONNECT [host_port] [protocol][crlf]Host: m.we.com.eg[crlf][crlf]
+''';
+
+      final profile = RtpConfigEngine.parseSsh(sshConf, defaultName: 'Cairo SSH Bug Host');
+
+      expect(profile.name, 'Cairo SSH Bug Host');
+      expect(profile.protocol, 'ssh');
+      expect(profile.serverAddress, '156.204.18.22');
+      expect(profile.serverPort, 22);
+      expect(profile.transport, 'tcp');
+      expect(profile.credentials['username'], 'ramez_vip');
+      expect(profile.credentials['password'], 'secret_cairo_pass');
+      expect(profile.sni, 'm.we.com.eg');
+      expect(profile.credentials['payload'], contains('CONNECT'));
+    });
+
+    test('Parses SSH URI format (ssh://user:pass@host:port)', () {
+      const sshUri = 'ssh://dev_user:secure123@ssh.rameztunnel.com:443?sni=fast.cdn.com';
+
+      final profile = RtpConfigEngine.parseSsh(sshUri);
+
+      expect(profile.protocol, 'ssh');
+      expect(profile.serverAddress, 'ssh.rameztunnel.com');
+      expect(profile.serverPort, 443);
+      expect(profile.credentials['username'], 'dev_user');
+      expect(profile.credentials['password'], 'secure123');
+      expect(profile.sni, 'fast.cdn.com');
+    });
+
+    test('parseAny automatically distinguishes between JSON, URI, WireGuard, SSH, and OVPN', () {
       final fromJson = RtpConfigEngine.parseAny(sampleRtpJson);
       expect(fromJson.name, 'Frankfurt VIP RTP');
 
       final fromUri = RtpConfigEngine.parseAny('vless://u@host.com:8080#Test');
       expect(fromUri.protocol, 'vless');
+
+      final fromWg = RtpConfigEngine.parseAny('[Interface]\nPrivateKey=xyz=\n[Peer]\nPublicKey=abc=\nEndpoint=1.1.1.1:51820');
+      expect(fromWg.protocol, 'wireguard');
+
+      final fromSsh = RtpConfigEngine.parseAny('ssh://admin:pass@10.0.0.1:22');
+      expect(fromSsh.protocol, 'ssh');
 
       final fromOvpn = RtpConfigEngine.parseAny('client\nremote 5.5.5.5 1194');
       expect(fromOvpn.serverAddress, '5.5.5.5');
