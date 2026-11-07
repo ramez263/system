@@ -61,7 +61,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
+      // Alahisan-style dark background (deep navy/charcoal)
+      scaffoldBackgroundColor: AppColors.darkColor,
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,

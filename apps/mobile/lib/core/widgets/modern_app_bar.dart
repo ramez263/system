@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Modern app bar inspired by CustomAnimatedContainer design.
+/// Modern app bar inspired by alahisan's CustomAnimatedContainer design.
 /// Features gradient background, flipped back button, centered title with height: 2,
-/// and rounded bottom corners.
+/// rounded bottom corners, and box shadow.
 class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
@@ -26,7 +26,7 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final seedColor = Theme.of(context).colorScheme.primary;
 
     return AppBar(
       toolbarHeight: height,
@@ -37,8 +37,8 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              colorScheme.primary,
-              colorScheme.primary.withValues(alpha: 0.85),
+              seedColor,
+              seedColor.withValues(alpha: 0.7),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -49,9 +49,9 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: seedColor.withValues(alpha: 0.35),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -67,8 +67,8 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
                       margin: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.forward_rounded,

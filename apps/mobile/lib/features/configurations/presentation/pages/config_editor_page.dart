@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/services/window_security_service.dart';
 import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_button.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
@@ -20,7 +21,14 @@ class _ConfigEditorPageState extends State<ConfigEditorPage> {
   String _protocol = 'OpenVPN';
 
   @override
+  void initState() {
+    super.initState();
+    WindowSecurityService.setSecureScreen(true);
+  }
+
+  @override
   void dispose() {
+    WindowSecurityService.setSecureScreen(false);
     _nameController.dispose();
     _serverController.dispose();
     _portController.dispose();

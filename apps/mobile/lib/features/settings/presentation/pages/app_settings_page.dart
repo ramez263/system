@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/services/battery_optimization_service.dart';
+import '../../../../core/services/diagnostic_log_redactor.dart';
 import '../../../../core/widgets/modern_app_bar.dart';
 import '../../../../core/widgets/ramez_glass_card.dart';
 import '../cubit/settings_cubit.dart';
@@ -9,7 +11,8 @@ import '../cubit/settings_state.dart';
 class AppSettingsPage extends StatelessWidget {
   const AppSettingsPage({super.key});
 
-  void _showDiagnosticLogsModal(BuildContext context, String logs, bool isArabic) {
+  void _showDiagnosticLogsModal(BuildContext context, String rawLogs, bool isArabic) {
+    final logs = DiagnosticLogRedactor.redact(rawLogs);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -260,6 +263,31 @@ class AppSettingsPage extends StatelessWidget {
                           final logs = await context.read<SettingsCubit>().exportDiagnosticReport();
                           if (context.mounted) {
                             _showDiagnosticLogsModal(context, logs, isArabic);
+                          }
+                        },
+                      ),
+                      const Divider(height: 1),
+                      _modernListTile(
+                        context: context,
+                        isArabic: isArabic,
+                        leading: const Icon(Icons.battery_charging_full, color: Colors.green),
+                        title: 'استثناء توفير طاقة البطارية',
+                        subtitle: 'Battery Optimization Exemption',
+                        arSubtitle: 'منع نظام أندرويد من إيقاف نفق VPN في الخلفية',
+                        enSubtitle: 'Prevent Android OS from terminating background VPN tunnel',
+                        trailingIcon: Icons.open_in_new,
+                        onTap: () async {
+                          final granted = await BatteryOptimizationService.requestIgnoreBatteryOptimization();
+                          if (context.mounted && granted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  isArabic
+                                      ? 'تم إرسال طلب استثناء توفير طاقة البطارية'
+                                      : 'Battery optimization exemption requested',
+                                ),
+                              ),
+                            );
                           }
                         },
                       ),

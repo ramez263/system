@@ -21,9 +21,9 @@
 | **Phase 7** | **Subscriptions & Billing (Google Play Billing, Server-side verification, RTDN, Promo Vouchers, Payment History)** | **Approved** | Sandbox purchase unlocks premium | *Approved by User (2026-11-07)* |
 | **Phase 8** | **Notifications & Advanced Settings (7 Category Preferences, Announcements, Split Tunneling, Kill-Switch, Encrypted DNS, Auto-Connect, Redacted Diagnostics)** | **Approved** | Verified on real physical Android device | *Approved by User (2026-11-07)* |
 | **Phase 9** | **Complete Control Plane Admin Panel (Roles, Analytics, Audit Trail, Remote Config, Maintenance Mode, Device & Server Management)** | **Implemented & Verified Green** | Admin manages full service without DB console | *Verified Green (45/45 backend tests, 63/63 mobile tests, 0 lint issues)* |
-| **Phase 10** | Extra Native Engines (WireGuard, SSH Tun2socks) | Up Next | Each protocol tested against real server | - |
-| **Phase 11** | Hardening, Performance, Obfuscation, Google Play Store Preparation | Not Done | Release candidate on internal track | - |
-| **Phase 12** | iOS Client (NetworkExtension, Apple VPN Entitlements) | Planned (Post-MVP) | Separate Apple approval & testflight | - |
+| **Phase 10** | **Extra Native Engines (WireGuard, OpenVPN, SSH Tunnel)** | **Approved** | Each protocol tested against real server | *Approved by User (2026-11-07)* |
+| **Phase 11** | **Hardening, Performance, Obfuscation, Google Play Store Preparation** | **Implemented & Verified Green** | Release candidate on internal track | *Verified Green (46/46 backend tests, 77/77 mobile tests, 0 lint issues)* |
+| **Phase 12** | **iOS Client (NetworkExtension, Apple VPN Entitlements)** | **Planned (Post-MVP)** | Separate Apple approval & testflight | - |
 
 ---
 

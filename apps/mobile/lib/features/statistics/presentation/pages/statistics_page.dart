@@ -23,7 +23,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         subtitle: 'Total bandwidth & session overview',
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

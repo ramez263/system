@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../storage/hive_storage_service.dart';
@@ -60,6 +61,12 @@ class ThemeCubit extends Cubit<ThemeState> {
       mode: ThemeMode.values[modeIndex ?? ThemeMode.system.index],
       preset: ThemePreset.values[presetIndex ?? ThemePreset.green.index],
     ));
+    
+    // Initialize dynamic colors based on loaded theme mode (alahisan style)
+    final isDark = state.mode == ThemeMode.dark ||
+        (state.mode == ThemeMode.system &&
+            PlatformDispatcher.instance.platformBrightness == Brightness.dark);
+    AppColors.updateDynamicColors(isDark);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -69,6 +76,11 @@ class ThemeCubit extends Cubit<ThemeState> {
       _keyThemeMode,
       mode.index,
     );
+    // Update dynamic colors based on dark mode (alahisan style)
+    final isDark = mode == ThemeMode.dark ||
+        (mode == ThemeMode.system &&
+            PlatformDispatcher.instance.platformBrightness == Brightness.dark);
+    AppColors.updateDynamicColors(isDark);
   }
 
   Future<void> setPreset(ThemePreset preset) async {

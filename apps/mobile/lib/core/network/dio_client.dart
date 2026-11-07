@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../config/app_environment.dart';
 import '../services/device_identity_service.dart';
+import 'interceptors/certificate_pinning_interceptor.dart';
 import 'interceptors/device_auth_interceptor.dart';
 import 'interceptors/logging_redaction_interceptor.dart';
 import 'interceptors/retry_interceptor.dart';
@@ -22,6 +23,10 @@ class DioClient {
             },
           ),
         ) {
+    CertificatePinningManager.configureDioPinning(
+      _dio,
+      isProduction: config.isProduction,
+    );
     _dio.interceptors.addAll([
       DeviceAuthInterceptor(deviceIdentityService),
       LoggingRedactionInterceptor(isEnabled: config.enableLogging),

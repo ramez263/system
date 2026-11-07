@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Globally prohibit unencrypted HTTP traffic -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Production API Domain with Strict Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.rameztunnel.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+        <!-- SPKI SHA-256 Public Key Pinning (primary + backup) -->
+        <pin-set expiration="2027-12-31">
+            <pin digest="SHA-256">FSgQx0u8n3p2kFj7wA2hM1tL9zR5cE8yX3pU2vQ1o8w=</pin>
+            <pin digest="SHA-256">k2N9GNz4j2gkHNuUZePooEDOxW5lfBctq8YQGPPCy10=</pin>
+        </pin-set>
+    </domain-config>
+
+    <!-- Local / Sandbox Development Overrides (Active only in debug) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
